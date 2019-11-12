@@ -1,23 +1,61 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include <string.h>
 #include "config.h"
 
-/*
- First line of text file is an integer that corresponds to a network topology.
- 0 = point to point (only two computers)
- 1 = bus
- 2 = ring
- 3 = star
- 4 = fully connected
- Any subsequent lines will hold the IP addresses & ports of the machines in the network. (Comma separated)
-*/
-int main() {
-    int* topology = get_topology("./config.txt");
-    printf("Index 0 contains the topology shape: %i\n", topology[0]);
-    printf("Index 1 contains the number of machines in the network: %i\n", topology[1]);
-    struct machine* machines = get_machines("./config.txt");
-    printf("IP Address of first machine is: %s\n", machines[0].ip_address);
-    printf("Port of first machine is: %i\n", machines[0].port);
+int* get_topology(char* filename){
+    FILE *fp;
+    char str[MAXCHAR];
+    fp = fopen(filename, "r");
+    if (fp == NULL){
+        printf("Could not open file %s",filename);
+        exit(EXIT_FAILURE);
+    }
+    static int* topology;
+    topology = malloc(sizeof(int) * 2);
+    int net_top;
+    int line_count = 0;
+    while (fgets(str, MAXCHAR, fp) != NULL) {
+        if (line_count == 0 && strlen(str) > 3) {
+            printf("Please make sure first line of config file is formatted correctly");
+            exit(EXIT_FAILURE);
+        } else if (line_count == 0 && strlen(str) <= 3) {
+            topology[0] = atoi(str);
+        }
+        line_count++;
+    }
+    topology[1] = --line_count;
+    fclose(fp);
+    return topology;
+}
+
+struct machine* get_machines(char* filename){
+    FILE *fp;
+    char str[MAXCHAR];
+    fp = fopen(filename, "r");
+    if (fp == NULL){
+        printf("Could not open file %s",filename);
+        exit(EXIT_FAILURE);
+    }
+
+    static struct machine* machines;
+    machines = malloc((sizeof(int) + sizeof(char) * 30) * 15);
+    int line_count = 0;
+    char *pt;
+    while (fgets(str, MAXCHAR, fp) != NULL) {
+        if (line_count > 0) {
+            pt = strtok(str, ",");
+            int is_it_ip = 1;
+            while(pt != NULL){
+                if(is_it_ip == 1){
+                    strcpy(machines[line_count - 1].ip_address, pt);
+                    is_it_ip = 0;
+                }
+                else if(is_it_ip == 0){
+                    machines[line_count - 1].port = atoi(pt);
+                }
+                pt = strtok(NULL, ",");
+            }
+        }
+        line_count++;
+    }
+    fclose(fp);
+    return machines;
 }
