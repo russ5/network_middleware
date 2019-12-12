@@ -22,7 +22,7 @@
  *  - Need to setup the middleware app functionality
  */
 /***** Structures *****/
-struct Machine {
+struct Config {
     int port;
     char ip[MAX_IP_LEN];
 };
@@ -30,15 +30,16 @@ struct Machine {
 /***** Functions *****/
 
 /** #FUNCTION# =========================================================================================================
- *  Name ..........:
- *  Description ...:
- *  Parameters ....:
- *  Return values .:
- *  Modified ......:
- *  Remarks .......:
+ *  Name ..........: readConfig
+ *  Description ...: read the configuration file
+ *  Parameters ....: char *configPath
+ *  Return values .: struct Config* (array of port and IP)
+ *  Modified ......: Changed machine struct to Config struct
+ *  Remarks .......: See Tae for info about functionality
+ *                   Has been modified slightly for port into mw_internal so may not work
  *  Related .......:
 **  ================================================================================================================= */
-struct Machine * get_machines(char * configPath);
+struct Config * readConfig(char * configPath);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -52,15 +53,15 @@ struct Machine * get_machines(char * configPath);
 void launchProg(char * args[]);
 
 /** #FUNCTION# =========================================================================================================
- *  Name ..........:
- *  Description ...:
- *  Parameters ....:
+ *  Name ..........: reachMiddleware
+ *  Description ...: Connect to each node's running middleware and launch the application
+ *  Parameters ....: struct Config * machines
  *  Return values .:
  *  Modified ......:
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int reachMiddleware(); // char * args[] here, or build it?
+int reachMiddleware(struct Config * machines); // char * args[] here, or build it?
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -71,7 +72,7 @@ int reachMiddleware(); // char * args[] here, or build it?
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int connect(char * ip, int sockId);
+int connect(char * ip, int port, int sockId);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -82,7 +83,7 @@ int connect(char * ip, int sockId);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int listenAccept(char * ip, int sockId);
+int listenAccept(char * ip, int port, int sockId);
 
 // Incorporate Config reading code?
 #endif
