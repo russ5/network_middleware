@@ -17,7 +17,7 @@ int ringSetup(int nodeId, char * configPath) {  // Include config path here?
 }
 
 // User Function
-int starSetup( /* Args? */ ) {
+int starSetup(char * configPath) {
 
 }
 
