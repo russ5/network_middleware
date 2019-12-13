@@ -60,7 +60,7 @@ int reachMiddleware(struct Config * machines) { // char * args[] here, or build 
 
 }
 
-int connect(char * ip, int port, int sockId) {
+int mwConnect(char * ip, int port, int sockId) {
     int client_sock = 0;
     struct sockaddr_in serv_addr;
 

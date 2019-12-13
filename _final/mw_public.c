@@ -35,11 +35,11 @@ int fullyConnectedSetup( /* Args? */ ) {
 }
 
 // User Function
-void Send(int nodeId, char * data) {
+void mwSend(int nodeId, char * data) {
 
 }
 
 // User Function
-char * Receive(int nodeId) {
+char * mwReceive(int nodeId) {
 
 }
