@@ -91,7 +91,7 @@ int listenAccept(char * ip, int port, int sockId) {
     int opt = 1;
     int addrlen = sizeof(address);
 
-// Set up server and listen
+    // Set up server and listen
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(EXIT_FAILURE);
@@ -105,12 +105,12 @@ int listenAccept(char * ip, int port, int sockId) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-// Wait for connect function call
+    // Wait for connect function call
     if (listen(sockfd, 3) < 0) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
-// Accept connection
+    // Accept connection
     if ((server_sock = accept(sockfd, (struct sockaddr *) &address, (socklen_t * ) & addrlen)) < 0) {
         perror("accept");
         exit(EXIT_FAILURE);

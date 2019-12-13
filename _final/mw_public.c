@@ -12,7 +12,7 @@
 #include "mw_public.h"
 
 // User Function
-int ringSetup(int nodeId, char * configPath) {  // Include config path here?
+int ringSetup(char * configPath) {  // Include config path here?
 
 }
 
@@ -26,7 +26,7 @@ int starSetup(char * configPath) {
     // bind socket to port
     // if master node, connect() to sockets
     // if regular node, accept() connection from master socket
-    // once connected, communicate as necessary
+    // once connected, communicate as necessary (using select() and send())
 }
 
 // User Function
