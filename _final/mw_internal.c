@@ -56,11 +56,40 @@ void launchProg(char * args[]) {
     }
 }
 
-int reachMiddleware(struct Config * machines) { // char * args[] here, or build it?
+void sendConfig(int sockId, char * pathConfig) {
 
 }
 
-int mwConnect(char * ip, int port, int sockId) {
+/// Change this to save config to temp directory seems better
+/*
+struct Config * recConfig(int sockId) {
+    struct Config * machines;
+
+    return machines;
+}
+*/
+
+int reachMiddleware(struct Config * machines) { // char * args[] here, or build it?
+    // Iterate over every node
+    // connect to each node read from config
+    // send app to launch & node ID
+    // close connection
+    int i = 0;
+    int port;
+    char * ip;
+
+    for(i=1; i++; i<4) {                /// NEEDS TO BE FIXED (SHOULDN'T BE HARD CODED)
+        port = machines[i].port;
+        ip = machines[i].ip;
+        bg_sock = connect(ip, port);
+        /// send app name
+        /// send config file
+        close(bg_sock);
+    }
+    return 1;
+}
+
+int connect(char * ip, int port) {
     int client_sock = 0;
     struct sockaddr_in serv_addr;
 
@@ -85,13 +114,13 @@ int mwConnect(char * ip, int port, int sockId) {
     return client_sock;
 }
 
-int listenAccept(char * ip, int port, int sockId) {
+int listenAccept(int port) {
     int sockfd, server_sock, valread;
     struct sockaddr_in address;
     int opt = 1;
     int addrlen = sizeof(address);
 
-    // Set up server and listen
+// Set up server and listen
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         perror("socket failed");
         exit(EXIT_FAILURE);
@@ -105,12 +134,12 @@ int listenAccept(char * ip, int port, int sockId) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    // Wait for connect function call
+// Wait for connect function call
     if (listen(sockfd, 3) < 0) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
-    // Accept connection
+// Accept connection
     if ((server_sock = accept(sockfd, (struct sockaddr *) &address, (socklen_t * ) & addrlen)) < 0) {
         perror("accept");
         exit(EXIT_FAILURE);

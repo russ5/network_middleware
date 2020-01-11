@@ -1,14 +1,6 @@
 #ifndef MIDDLEWARE_H
 #define MIDDLEWARE_H
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <stdio.h>
-#include <sys/socket.h>
-#include <stdlib.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <arpa/inet.h>
+
 #define MAX_IP_LEN 30
 #define PORT 59000
 #define BUFFER 512
@@ -53,6 +45,28 @@ struct Config * readConfig(char * configPath);
 void launchProg(char * args[]);
 
 /** #FUNCTION# =========================================================================================================
+ *  Name ..........:
+ *  Description ...:
+ *  Parameters ....:
+ *  Return values .:
+ *  Modified ......:
+ *  Remarks .......:
+ *  Related .......:
+**  ================================================================================================================= */
+void sendConfig(int sockId, struct Config * machines, int configLen);
+
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........:
+ *  Description ...:
+ *  Parameters ....:
+ *  Return values .:
+ *  Modified ......:
+ *  Remarks .......:
+ *  Related .......:
+**  ================================================================================================================= */
+struct Config * recConfig(int sockId);  /// This is changing to save config to tmp dir
+
+/** #FUNCTION# =========================================================================================================
  *  Name ..........: reachMiddleware
  *  Description ...: Connect to each node's running middleware and launch the application
  *  Parameters ....: struct Config * machines
@@ -72,7 +86,7 @@ int reachMiddleware(struct Config * machines); // char * args[] here, or build i
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int connect(char * ip, int port, int sockId);
+int connect(char * ip, int port);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -83,7 +97,7 @@ int connect(char * ip, int port, int sockId);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int listenAccept(char * ip, int port, int sockId);
+int listenAccept(int port);
 
 // Incorporate Config reading code?
 #endif

@@ -12,21 +12,40 @@
 #include "mw_public.h"
 
 // User Function
-int ringSetup(char * configPath) {  // Include config path here?
+int ringSetup(int nodeId, char * configPath) {  // Include config path here?
+    struct Config * machines;                   // Struct for storing the config file
+    int next_node, prev_node;                   // Track the node-1 and the node+1 from this node
+    int comIds[64];                             // Store the socket IDs for other nodes
+
+    if(configPath != "") {
+       machines = readConfig(configPath);
+       // Determine nodeId
+    }
+
+    if(nodeId == 0) {                                               // Node 0 must reach out to middleware
+        if(reachMiddleware(machines) != 1) {                        // Reach middleware step goes to every node to distribute config file
+            printf("Attempt to reach out to middleware failed");    // Alternatively could distribute config file earlier at middleware comm level (makes more sense)
+        }
+        next_node = connect(machines[1].ip, machines[1].port);
+        sendConfig(next_node, machines, configLen);
+        prev_node = listenAccept(59000);
+    } else {
+        prev_node = listenAccept(59000 + nodeId);
+        machines = recConfig(prev_node);
+        if(nodeId+1 < lenConfig){
+            next_node = connect(machines[nodeId+1].ip, machines[nodeId+1].port);
+        } else {
+            next_node = connect(machines[0].ip, machines[0].port);
+        }
+    }
+
+
 
 }
 
 // User Function
-int starSetup(char * configPath) {
-    // get set of socket descriptors
-    // create a master socket on node 0
-        // setsockopt to allow multiple connections
-        // initiate setup on other machines
-    // if not node 0, create a regular socket
-    // bind socket to port
-    // if master node, connect() to sockets
-    // if regular node, accept() connection from master socket
-    // once connected, communicate as necessary (using select() and send())
+int starSetup( /* Args? */ ) {
+
 }
 
 // User Function
@@ -35,11 +54,11 @@ int fullyConnectedSetup( /* Args? */ ) {
 }
 
 // User Function
-void mwSend(int nodeId, char * data) {
+void Send(int nodeId, char * data, int dataLen) {
 
 }
 
 // User Function
-char * mwReceive(int nodeId) {
+char * Receive(int nodeId) {
 
 }
