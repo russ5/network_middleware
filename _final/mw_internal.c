@@ -69,7 +69,7 @@ struct Config * recConfig(int sockId) {
 }
 */
 
-int reachMiddleware(struct Config * machines) { // char * args[] here, or build it?
+int reachMiddleware(struct Config * machines, char * configPath) {
     // Iterate over every node
     // connect to each node read from config
     // send app to launch & node ID
@@ -83,7 +83,7 @@ int reachMiddleware(struct Config * machines) { // char * args[] here, or build 
         ip = machines[i].ip;
         bg_sock = connect(ip, port);
         /// send app name
-        /// send config file
+        sendConfig(port, ip, configPath);       // May change args for this func
         close(bg_sock);
     }
     return 1;

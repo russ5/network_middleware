@@ -31,7 +31,7 @@ struct Config {
  *                   Has been modified slightly for port into mw_internal so may not work
  *  Related .......:
 **  ================================================================================================================= */
-struct Config * readConfig(char * configPath);
+struct Config * readConfig(char * configPath);                              /// Finished
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -42,7 +42,7 @@ struct Config * readConfig(char * configPath);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-void launchProg(char * args[]);
+void launchProg(char * args[]);                                             /// Finished
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -53,7 +53,7 @@ void launchProg(char * args[]);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-void sendConfig(int sockId, struct Config * machines, int configLen);
+void sendConfig(int port, char * ip, char * configPath);                    /// Have code externally
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -64,7 +64,7 @@ void sendConfig(int sockId, struct Config * machines, int configLen);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-struct Config * recConfig(int sockId);  /// This is changing to save config to tmp dir
+struct Config * recConfig(int sockId);                                      /// This is changing to save config to tmp dir NOT FINISHED
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: reachMiddleware
@@ -75,7 +75,7 @@ struct Config * recConfig(int sockId);  /// This is changing to save config to t
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int reachMiddleware(struct Config * machines); // char * args[] here, or build it?
+int reachMiddleware(struct Config * machines, char * configPath);           ///
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -86,7 +86,7 @@ int reachMiddleware(struct Config * machines); // char * args[] here, or build i
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int connect(char * ip, int port);
+int connect(char * ip, int port);                                           /// Finished
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: starConnect
@@ -108,7 +108,7 @@ int * starConnect(char * ip, int port);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int listenAccept(int port);
+int listenAccept(int port);                                                 /// Finished
 
 // Incorporate Config reading code?
 #endif
