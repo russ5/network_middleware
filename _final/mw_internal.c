@@ -114,6 +114,17 @@ int connect(char * ip, int port) {
     return client_sock;
 }
 
+int * starConnect (int * ips, int port) {
+    int client_socket[30];
+
+    // Hardcoded loop to add clients
+    for (int i = 1; i < 4; i++) {
+        // client_socket[i-1] = connect(NODE_IP[i], PORT); // add clients to array
+    }
+
+    return client_socket;
+}
+
 int listenAccept(int port) {
     int sockfd, server_sock, valread;
     struct sockaddr_in address;

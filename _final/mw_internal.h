@@ -89,6 +89,17 @@ int reachMiddleware(struct Config * machines); // char * args[] here, or build i
 int connect(char * ip, int port);
 
 /** #FUNCTION# =========================================================================================================
+ *  Name ..........: starConnect
+ *  Description ...: loops through connect() to create an array of connections for the central star node
+ *  Parameters ....: int * ips: array of clients IPs, int port: port of all client sockets
+ *  Return values .: int * client_sock: array of all client sockets
+ *  Modified ......:
+ *  Remarks .......:
+ *  Related .......:
+**  ================================================================================================================= */
+int * starConnect(char * ip, int port);
+
+/** #FUNCTION# =========================================================================================================
  *  Name ..........:
  *  Description ...:
  *  Parameters ....:
