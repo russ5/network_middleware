@@ -53,7 +53,7 @@ void launchProg(char * args[]);                                             /// 
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-void sendConfig(int sockId, struct Config * machines, int configLen);       ///
+void sendConfig(int port, char * ip, char * configPath);                    /// Have code externally
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -64,7 +64,7 @@ void sendConfig(int sockId, struct Config * machines, int configLen);       ///
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-struct Config * recConfig(int sockId);                                      /// This is changing to save config to tmp dir
+struct Config * recConfig(int sockId);                                      /// This is changing to save config to tmp dir NOT FINISHED
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: reachMiddleware
@@ -75,7 +75,7 @@ struct Config * recConfig(int sockId);                                      /// 
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int reachMiddleware(struct Config * machines); // char * args[] here, or build it?
+int reachMiddleware(struct Config * machines, char * configPath);           ///
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
