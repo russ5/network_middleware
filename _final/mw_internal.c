@@ -13,9 +13,9 @@
 struct Config * readConfig(char * configPath) {
     FILE *fp;
     char str[MAXCHAR];
-    fp = fopen(filename, "r");
+    fp = fopen(configPath, "r");
     if (fp == NULL){
-        printf("Could not open file %s",filename);
+        printf("Could not open file %s",configPath);
         exit(EXIT_FAILURE);
     }
 
@@ -29,7 +29,7 @@ struct Config * readConfig(char * configPath) {
             int is_it_ip = 1;
             while(pt != NULL){
                 if(is_it_ip == 1){
-                    strcpy(machines[line_count - 1].ip_address, pt);
+                    strcpy(machines[line_count - 1].ip, pt);
                     is_it_ip = 0;
                 }
                 else if(is_it_ip == 0){
@@ -56,18 +56,14 @@ void launchProg(char * args[]) {
     }
 }
 
-void sendConfig(int sockId, char * pathConfig) {
-
+void sendConfig(int port, char * ip, char * configPath) {
+    printf("sendConfig: Needs to be polished\n");
 }
 
 /// Change this to save config to temp directory seems better
-/*
-struct Config * recConfig(int sockId) {
-    struct Config * machines;
-
-    return machines;
+void recConfig(int sockId) {
+    printf("recConfig: needs to be polished\n");
 }
-*/
 
 int reachMiddleware(struct Config * machines, char * configPath) {
     // Iterate over every node
@@ -76,20 +72,25 @@ int reachMiddleware(struct Config * machines, char * configPath) {
     // close connection
     int i = 0;
     int port;
+    int bg_sock;
     char * ip;
+    char * progName = "./ringTest";
 
     for(i=1; i++; i<4) {                /// NEEDS TO BE FIXED (SHOULDN'T BE HARD CODED)
         port = machines[i].port;
         ip = machines[i].ip;
-        bg_sock = connect(ip, port);
+        bg_sock = Connect(ip, port);
         /// send app name
+        send(bg_sock, progName, strlen(progName), 0);
+        /// Send Config
         sendConfig(port, ip, configPath);       // May change args for this func
+        /// Close the socket
         close(bg_sock);
     }
     return 1;
 }
 
-int connect(char * ip, int port) {
+int Connect(char * ip, int port) {
     int client_sock = 0;
     struct sockaddr_in serv_addr;
 
@@ -99,10 +100,10 @@ int connect(char * ip, int port) {
     }
 
     serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons();
+    serv_addr.sin_port = htons(port);
     //strcpy(ip, conf_ip[0].ip);
 
-    if (inet_pton(AF_INET, ip, &serv_addr.sin_addr) <= 0) {
+    if (inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr) <= 0) {
         printf("\nInvalid address/ Address not supported \n");
         return -1;
     }
@@ -114,7 +115,7 @@ int connect(char * ip, int port) {
     return client_sock;
 }
 
-int * starConnect (int * ips, int port) {
+int * starConnect (char * ip, int port) {
     int client_socket[30];
 
     // Hardcoded loop to add clients
@@ -136,10 +137,10 @@ int listenAccept(int port) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
-    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int));
+    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(int));
     address.sin_family = AF_INET;
     address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    address.sin_port = htons(port);
     // Bind socket
     if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
         perror("bind failed");

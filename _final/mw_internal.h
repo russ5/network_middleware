@@ -1,6 +1,7 @@
 #ifndef MIDDLEWARE_H
 #define MIDDLEWARE_H
 
+#define MAXCHAR 64
 #define MAX_IP_LEN 30
 #define PORT 59000
 #define BUFFER 512
@@ -64,7 +65,7 @@ void sendConfig(int port, char * ip, char * configPath);                    /// 
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-struct Config * recConfig(int sockId);                                      /// This is changing to save config to tmp dir NOT FINISHED
+void recConfig(int sockId);                                                 /// Change to listen socket
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: reachMiddleware
@@ -86,7 +87,7 @@ int reachMiddleware(struct Config * machines, char * configPath);           ///
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int connect(char * ip, int port);                                           /// Finished
+int Connect(char * ip, int port);                                           /// Finished
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: starConnect
