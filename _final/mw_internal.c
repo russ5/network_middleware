@@ -45,6 +45,23 @@ struct Config * readConfig(char * configPath) {
     return machines;
 }
 
+int getNumOfMachines(char * configPath){
+    FILE *fp;
+    char str[MAXCHAR];
+    fp = fopen(filename, "r");
+    if (fp == NULL){
+        printf("Could not open file %s",filename);
+        exit(EXIT_FAILURE);
+    }
+    int net_top;
+    int line_count = 0;
+    while (fgets(str, MAXCHAR, fp) != NULL) {
+        line_count++;
+    }
+    fclose(fp);
+    return --line_count;
+}
+
 void launchProg(char * args[]) {
     pid_t childPid;
     childPid = fork();
