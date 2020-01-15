@@ -37,6 +37,7 @@ struct Config * readConfig(char * configPath) {
                 }
                 pt = strtok(NULL, ",");
             }
+            machines[line_count - 1].nodeID = line_count - 1;
         }
         line_count++;
     }

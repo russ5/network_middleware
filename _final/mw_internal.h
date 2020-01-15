@@ -18,6 +18,7 @@
 struct Config {
     int port;
     char ip[MAX_IP_LEN];
+    int nodeID;
 };
 
 /***** Functions *****/
