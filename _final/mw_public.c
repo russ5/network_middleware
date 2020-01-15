@@ -47,7 +47,7 @@ int * ringSetup(int nodeId, char * configPath) {  // Include config path here?
 }
 
 // User Function
-int starSetup( /* Args? */ ) {
+int * starSetup(int nodeId, char * configPath) {
 
     struct Config * nodes;  // Struct for storing the config file information
 
@@ -57,7 +57,7 @@ int starSetup( /* Args? */ ) {
     }
 
     if (nodeID == 0) {
-        int client_sockets[30];
+        int client_nodes[30];
 
         if(reachMiddleware(nodes) != 1) {  // Distribute config file to every node
             printf("Attempt to reach out to middleware failed");
@@ -72,7 +72,7 @@ int starSetup( /* Args? */ ) {
         central_node = listenAccept(PORT);
     }
 
-    // what is being returned? An socket array for central node and a socket for others?
+    return client_nodes;
 }
 
 // User Function
