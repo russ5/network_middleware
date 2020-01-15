@@ -46,6 +46,25 @@ struct Config * readConfig(char * configPath);                              /// 
  *  Related .......:
 **  ================================================================================================================= */
 int getNumOfMachines(char * configPath);                              /// Finished
+
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........: checkIPMatch
+ *  Description ...: Checks if inputted IP matches the current machine's IP
+ *  Parameters ....: char *ipAddress (IP Address string)
+ *  Return values .: int 1 == True, 0 == False
+ *  Modified ......:
+ *  Remarks .......: See Tae for info about functionality
+ *                   Has been modified slightly for port into mw_internal so may not work
+ *  Related .......: checkHostName, checkHostEntry, checkIPbuffer are all helper functions for this function
+**  ================================================================================================================= */
+int checkIPMatch(char *ipAddress);                                    /// Finished
+
+void checkHostName(int hostname);                                     /// Finished
+
+void checkHostEntry(struct hostent * hostentry);                      /// Finished
+
+void checkIPbuffer(char *IPbuffer);
+
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
  *  Description ...:
