@@ -14,19 +14,25 @@
 #define PORT 59000
 
 int main(int argc, char const *argv[]) {
-    int node = atoi(argv[1]);
+    int node;
 
     int i = 0, j = 0;
     int nodeZero;
     int num_nodes;
+    int lenAppName;
     char str_num_nodes[32];
     char inst[1024];
     char ip[16];
     //struct Config conf_ip[64];
     char _node[8];
+    char *token;
 
     //int localTest = atoi(argv[1]);
-
+    if(argc == 1) {
+        node = 0;
+    } else {
+        node = atoi(argv[1]);
+    }
     // Loop so app runs in background permanently
     while(1) {
         printf("Background launched at node %s\n", argv[1]);
@@ -34,6 +40,17 @@ int main(int argc, char const *argv[]) {
         nodeZero = listenAccept(PORT + node);
         /// Receive app name
         read(nodeZero, inst, 1024);
+        token = strtok(inst, "#");
+        lenAppName = atoi(token);
+        token = strtok(NULL, "#");
+        /*
+        while(token != NULL) {
+            printf("\n%s", token);
+            token = strtok(NULL, "#");
+        }
+         */
+        char * tmp = inst;
+        printf("%s", inst);
         /// Receive config file
         recConfig(nodeZero);
         /// Save config file (/tmp/config.txt)

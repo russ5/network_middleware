@@ -50,9 +50,9 @@ struct Config * readConfig(char * configPath) {
 int getNumOfMachines(char * configPath){
     FILE *fp;
     char str[MAXCHAR];
-    fp = fopen(filename, "r");
+    fp = fopen(configPath, "r");
     if (fp == NULL){
-        printf("Could not open file %s",filename);
+        printf("Could not open file %s",configPath);
         exit(EXIT_FAILURE);
     }
     int net_top;

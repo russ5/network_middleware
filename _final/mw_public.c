@@ -46,9 +46,10 @@ int * ringSetup(int nodeId, char * configPath) {  // Include config path here?
     return ptr;
 }
 
-// User Function
-int starSetup( /* Args? */ ) {
 
+// User Function
+//int starSetup( /* Args? */ ) {
+/*
     struct Config * nodes;  // Struct for storing the config file information
 
     if(configPath != "") {
@@ -74,7 +75,7 @@ int starSetup( /* Args? */ ) {
 
     // what is being returned? An socket array for central node and a socket for others?
 }
-
+*/
 // User Function
 int fullyConnectedSetup( /* Args? */ ) {
 
