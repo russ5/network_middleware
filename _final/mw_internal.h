@@ -101,13 +101,13 @@ void recConfig(int sockId);                                                 /// 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: reachMiddleware
  *  Description ...: Connect to each node's running middleware and launch the application
- *  Parameters ....: struct Config * machines
+ *  Parameters ....: struct Config * machines, char * configPath, char * progPath
  *  Return values .:
  *  Modified ......:
- *  Remarks .......:
+ *  Remarks .......: progPath variable should start with "./"
  *  Related .......:
 **  ================================================================================================================= */
-int reachMiddleware(struct Config * machines, char * configPath);           ///
+int reachMiddleware(struct Config * machines, char * configPath, char * progPath);           ///
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:

@@ -11,7 +11,7 @@
 #include "mw_public.h"
 
 #define MAX_IP 24
-#define PORT 59000
+#define PORT_BG 58900
 
 int main(int argc, char const *argv[]) {
     int node;
@@ -19,9 +19,10 @@ int main(int argc, char const *argv[]) {
     int i = 0, j = 0;
     int nodeZero;
     int num_nodes;
-    int lenAppName;
+    int headerVal;
+    int sockfd;
     char str_num_nodes[32];
-    char inst[1024];
+    char inst[1024], tmpBuff[1024];
     char ip[16];
     //struct Config conf_ip[64];
     char _node[8];
@@ -37,18 +38,15 @@ int main(int argc, char const *argv[]) {
     while(1) {
         printf("Background launched at node %s\n", argv[1]);
         /// Wait for connection
-        nodeZero = listenAccept(PORT + node);
+        nodeZero = listenAccept(PORT_BG + node);
         /// Receive app name
         read(nodeZero, inst, 1024);
-        token = strtok(inst, "#");
-        lenAppName = atoi(token);
-        token = strtok(NULL, "#");
-        /*
-        while(token != NULL) {
-            printf("\n%s", token);
-            token = strtok(NULL, "#");
-        }
-         */
+
+        strncpy(tmpBuff, inst, 3);                  // Split header to read
+        tmpBuff[3] = "\0";                          // Manually add null terminator to app name length
+        headerVal = atoi(tmpBuff);                  // Convert header to integer
+        strncpy(tmpBuff, inst+3, 3+headerVal);      // Strip out header (length)
+
         char * tmp = inst;
         printf("%s", inst);
         /// Receive config file
@@ -60,9 +58,9 @@ int main(int argc, char const *argv[]) {
 
         // Fork exec new prog (Pass the node ID?)
         sprintf(_node, "%d", node);
-        char *args[] = {inst, _node, NULL};
+        char *args[] = {tmpBuff, _node, NULL};
         launchProg(args);
         printf("App finished\n");
-
+        //sleep(20);
     }
 }

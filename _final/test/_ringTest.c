@@ -6,20 +6,21 @@
 #include "../mw_public.h"
 
 void main(int argc, char const *argv[]) {
-    printf("Main Loop");
+    printf("Main Loop\n");
     int node = atoi(argv[1]);
     char * msg = "Testing the elevated connection scheme";
     char * buffer;
     int * sockIds;
 
     if(node == 0){
-        printf("Start Ring Setup");
+        printf("Start Ring Setup\n");
         sockIds = ringSetup(node, "ringTestConfig.txt");
         Send(1, msg, strlen(msg), sockIds);
     } else {
         sockIds = ringSetup(node, "");
         buffer = Receive(node-1, sockIds);
-        Send(node+1, buffer, 512, sockIds);
+        //Send(node+1, buffer, 512, sockIds);
+        printf("%s", buffer);
     }
     close(sockIds[node+1]);
 }

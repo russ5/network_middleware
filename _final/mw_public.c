@@ -16,6 +16,7 @@ int * ringSetup(int nodeId, char * configPath) {  // Include config path here?
     struct Config * machines;                   // Struct for storing the config file
     int next_node, prev_node;                   // Track the node-1 and the node+1 from this node
     int comIds[64];                             // Store the socket IDs for other nodes
+    char * appPath = "./ringTest";
     // Loop variables
     int i;
 
@@ -25,7 +26,7 @@ int * ringSetup(int nodeId, char * configPath) {  // Include config path here?
     }
 
     if(nodeId == 0) {                                               // Node 0 must reach out to middleware
-        if(reachMiddleware(machines, configPath) != 1) {            // Reach middleware step goes to every node to distribute config file
+        if(reachMiddleware(machines, configPath, appPath) != 1) {            // Reach middleware step goes to every node to distribute config file
             printf("Attempt to reach out to middleware failed");    // Alternatively could distribute config file earlier at middleware comm level (makes more sense)
         }
         comIds[nodeId+1] = Connect(machines[1].ip, machines[1].port);

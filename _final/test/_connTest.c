@@ -12,19 +12,32 @@
 
 void main(int argc, char const *argv[]) {
 
-    char * msg = "./testText";
-    int id = Connect("127.0.0.1", 59001);
+    char * msg = "./test/testText";
+    int id = Connect("127.0.0.1", 58901);
     char buff[64];
-    int tmp;
-    char *token;
+    char tmpBuff[32];
+    int headerVal;
+    int i;
+    //struct Config * machines = readConfig("ringTestConfig.txt");
 
-    sprintf(buff, "%03d", strlen(msg));
-    strcat(buff, "#");
-    tmp = atoi(buff);
-    strcat(buff, msg);
-    printf("%s", buff);
+    //char *token;
+
+    sprintf(buff, "%03d", strlen(msg));         // Header of msg length
+    strcat(buff, msg);                          // Add msg onto end of buffer
+
+    strncpy(tmpBuff, buff, 3);                  // Split header to read
+    tmpBuff[3] = "\0";                          // Manually add null terminator
+    headerVal = atoi(tmpBuff);                  // Convert header to integer
+    strncpy(tmpBuff, buff+3, 3+headerVal);      // Strip out header (length)
+
+    //printf("%s", tmpBuff);
+    //char * args[] = {tmpBuff, NULL};
+    //launchProg(args);
 
     send(id, buff, strlen(buff), 0);
     close(id);
 
+    id = Connect("127.0.0.1", 59001);
+    send(id, "Secondary connection", 21, 0);
+    close(id);
 }
