@@ -141,6 +141,8 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
     // connect to each node read from config
     // send app to launch & node ID
     // close connection
+    int localTest = 1;
+
     int i = 0;
     int port;
     int bg_sock;        // background socket
@@ -148,19 +150,36 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
     char buff[128];
     //char * progName = "./ringTest";
 
-    for(i=0; i++; i<3) {                /// NEEDS TO BE FIXED (SHOULDN'T BE HARD CODED)
-        port = machines[i].port;
-        ip = machines[i].ip;
-        //printf("%s, %d", ip, port);
-        bg_sock = Connect(ip, port);
-        /// send app name
-        sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
-        strcat(buff, progPath);                              // Add msg onto end of buffer
-        send(bg_sock, progPath, 128, 0);
-        /// Send Config
-        sendConfig(port, ip, configPath);               // May change args for this func
-        /// Close the socket
-        close(bg_sock);
+    if(localTest) {
+        for(i=0; i<3; i++) {        // Iterate over two background apps
+            ip = "127.0.0.1";       // Local machine
+            port = 58901+i;
+            bg_sock = Connect(ip, port);
+            printf("%s, %d\n", ip, port);
+            /// send app name
+            sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
+            strcat(buff, progPath);                              // Add msg onto end of buffer
+            send(bg_sock, buff, 128, 0);
+            /// Send Config
+            //sendConfig(port, ip, configPath);                   // May change args for this func
+            /// Close the socket
+            close(bg_sock);
+        }
+    } else {
+        for (i = 0; i++; i < 3) {                /// NEEDS TO BE FIXED (SHOULDN'T BE HARD CODED)
+            port = machines[i].port;
+            ip = machines[i].ip;
+            //printf("%s, %d", ip, port);
+            bg_sock = Connect(ip, port);
+            /// send app name
+            sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
+            strcat(buff, progPath);                              // Add msg onto end of buffer
+            send(bg_sock, progPath, 128, 0);
+            /// Send Config
+            sendConfig(port, ip, configPath);               // May change args for this func
+            /// Close the socket
+            close(bg_sock);
+        }
     }
     return 1;
 }

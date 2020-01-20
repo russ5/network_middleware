@@ -13,15 +13,15 @@
 void main(int argc, char const *argv[]) {
 
     char * msg = "./test/testText";
-    int id = Connect("127.0.0.1", 58901);
+    //int id = Connect("127.0.0.1", 58901);
     char buff[64];
     char tmpBuff[32];
     int headerVal;
     int i;
-    //struct Config * machines = readConfig("ringTestConfig.txt");
+    struct Config * machines = readConfig("ringTestConfig.txt");
 
     //char *token;
-
+    /*
     sprintf(buff, "%03d", strlen(msg));         // Header of msg length
     strcat(buff, msg);                          // Add msg onto end of buffer
 
@@ -40,4 +40,6 @@ void main(int argc, char const *argv[]) {
     id = Connect("127.0.0.1", 59001);
     send(id, "Secondary connection", 21, 0);
     close(id);
+    */
+    reachMiddleware(machines, "test/ringTestConfig.txt", "./test/testText");
 }

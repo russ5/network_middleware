@@ -13,6 +13,10 @@
 #define MAX_IP 24
 #define PORT_BG 58900
 
+/** KNOWN ISSUES
+ *      - Background wont loop (bind failed: Address already in use)
+ */
+
 int main(int argc, char const *argv[]) {
     int node;
 
@@ -42,15 +46,16 @@ int main(int argc, char const *argv[]) {
         /// Receive app name
         read(nodeZero, inst, 1024);
 
+        printf("%s\n", inst);
+
         strncpy(tmpBuff, inst, 3);                  // Split header to read
-        tmpBuff[3] = "\0";                          // Manually add null terminator to app name length
+        tmpBuff[3] = '\0';                          // Manually add null terminator to app name length
         headerVal = atoi(tmpBuff);                  // Convert header to integer
         strncpy(tmpBuff, inst+3, 3+headerVal);      // Strip out header (length)
 
         char * tmp = inst;
-        printf("%s", inst);
         /// Receive config file
-        recConfig(nodeZero);
+        //recConfig(nodeZero);
         /// Save config file (/tmp/config.txt)
 
         /// Close connection

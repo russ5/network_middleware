@@ -15,8 +15,10 @@ void main(int argc, char const *argv[]) {
         printf("%d ", i);
     }
 
+    /*
     id = listenAccept(59001);
     read(id, inst, 1024);
     printf("%s\n", inst);
     close(id);
+    */
 }
