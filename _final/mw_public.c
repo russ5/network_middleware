@@ -66,13 +66,13 @@ int * starSetup(int nodeId, char * configPath) {
         // somehow wait until all clients are ready and waiting?
 
         client_nodes = starConnect(nodes, PORT);
+        return client_nodes;
     }
     else {
         int central_node;
         central_node = listenAccept(PORT);
+        return central_node;
     }
-
-    return client_nodes;
 }
 
 // User Function
