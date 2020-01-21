@@ -48,26 +48,27 @@ int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config 
 int * starSetup(int nodeId, char * configPath) {
 
     struct Config * nodes;  // Struct for storing the config file information
+    char * appPath = "./test/ringTest";
 
     if(configPath != "") {
         nodes = readConfig(configPath);
         // Determine nodeId
     }
 
-    if (nodeID == 0) {
-        int client_nodes[30];
+    if (nodeId == 0) {
+        int * client_nodes;
 
-        if(reachMiddleware(nodes) != 1) {  // Distribute config file to every node
+        if(reachMiddleware(nodes, configPath, appPath) != 1) {  // Distribute config file to every node
             printf("Attempt to reach out to middleware failed");
         }
 
         // somehow wait until all clients are ready and waiting?
 
-        client_nodes = starConnect(nodes, PORT);
+        client_nodes = starConnect(nodes);
         return client_nodes;
     }
     else {
-        int central_node;
+        int * central_node;
         central_node = listenAccept(PORT);
         return central_node;
     }
