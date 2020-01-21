@@ -12,26 +12,21 @@
 #include "mw_public.h"
 
 // User Function
-int * ringSetup(int nodeId, char * configPath) {  // Include config path here?
+int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config path here?
     struct Config * machines;                   // Struct for storing the config file
-    int next_node, prev_node;                   // Track the node-1 and the node+1 from this node
-    int comIds[64];                             // Store the socket IDs for other nodes
-    char * appPath = "./ringTest";
+    //static int comIds[64];                             // Store the socket IDs for other nodes
+    char * appPath = "./test/ringTest";
     // Loop variables
     int i;
 
-    if(configPath != "") {
-       machines = readConfig(configPath);
-       // Determine nodeId
-    }
-
     if(nodeId == 0) {                                               // Node 0 must reach out to middleware
+        machines = readConfig(configPath);
         if(reachMiddleware(machines, configPath, appPath) != 1) {            // Reach middleware step goes to every node to distribute config file
-            printf("Attempt to reach out to middleware failed");    // Alternatively could distribute config file earlier at middleware comm level (makes more sense)
+            printf("Attempt to reach out to middleware failed");
         }
         comIds[nodeId+1] = Connect(machines[1].ip, machines[1].port);
-        //sendConfig(next_node, machines, configLen);
         comIds[3] = listenAccept(machines[nodeId].port);                            /// Needs logic (number of nodes would do)
+        printf("Made it full circle\n");
     } else {
         // Read the config
         machines = readConfig(configPath);                         /// Will need to change to tmp directory
@@ -40,11 +35,13 @@ int * ringSetup(int nodeId, char * configPath) {  // Include config path here?
         if(nodeId+1 < 4){                                         /// Need to remove hard coding
             comIds[nodeId+1] = Connect(machines[nodeId+1].ip, machines[nodeId+1].port);
         } else {
+            //printf("Node 3 connection\n");
+            //printf("%s, %d\n", machines[0].ip, machines[0].port);
             comIds[0] = Connect(machines[0].ip, machines[0].port);
         }
     }
-    int * ptr = comIds;
-    return ptr;
+    //int * ptr = comIds;
+    return 1;
 }
 
 
@@ -89,9 +86,9 @@ void Send(int nodeId, char * data, int dataLen, int * sockIds) {
 }
 
 // User Function
-char * Receive(int nodeId, int * sockIds) {
-    char buff[BUFFER];
-    read(sockIds[nodeId], buff, BUFFER);
-    char * ptr = buff;
-    return ptr;
+int Receive(char * buffer, int nodeId, int * sockIds) {
+    //char buff[BUFFER];
+    read(sockIds[nodeId], buffer, BUFFER);
+    //char * ptr = buff;
+    return 1;
 }

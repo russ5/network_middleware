@@ -43,8 +43,6 @@ int main(int argc, char const *argv[]) {
         /// Receive app name
         read(nodeZero, inst, 1024);
 
-        printf("%s\n", inst);
-
         strncpy(tmpBuff, inst, 3);                  // Split header to read
         tmpBuff[3] = '\0';                          // Manually add null terminator to app name length
         headerVal = atoi(tmpBuff);                  // Convert header to integer

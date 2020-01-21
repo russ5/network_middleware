@@ -17,7 +17,7 @@ struct Config * readConfig(char * configPath) {
     char str[MAXCHAR];
     fp = fopen(configPath, "r");
     if (fp == NULL){
-        printf("Could not open file %s",configPath);
+        printf("Could not open file %s\n",configPath);
         exit(EXIT_FAILURE);
     }
 
@@ -148,14 +148,12 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
     int bg_sock;        // background socket
     char * ip;
     char buff[128];
-    //char * progName = "./ringTest";
 
     if(localTest) {
         for(i=0; i<3; i++) {        // Iterate over two background apps
-            ip = "127.0.0.1";       // Local machine
+            ip = machines[i].ip;    // Local machine
             port = 58901+i;
             bg_sock = Connect(ip, port);
-            printf("%s, %d\n", ip, port);
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
             strcat(buff, progPath);                              // Add msg onto end of buffer
@@ -167,9 +165,8 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
         }
     } else {
         for (i = 0; i++; i < 3) {                /// NEEDS TO BE FIXED (SHOULDN'T BE HARD CODED)
-            port = machines[i].port;
+            port = PORT_BG;
             ip = machines[i].ip;
-            //printf("%s, %d", ip, port);
             bg_sock = Connect(ip, port);
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
