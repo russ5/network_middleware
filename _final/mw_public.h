@@ -21,7 +21,7 @@
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int * ringSetup(int nodeId, char * configPath); // Include config path here?
+int ringSetup(int comIds[], int nodeId, char * configPath); // Include config path here?
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -65,6 +65,6 @@ void Send(int nodeId, char * data, int dataLen, int * sockIds);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-char * Receive(int nodeId, int * sockIds);
+int Receive(char * buffer, int nodeId, int * sockIds);
 
 #endif
