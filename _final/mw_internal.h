@@ -4,7 +4,10 @@
 #define MAXCHAR 64
 #define MAX_IP_LEN 30
 #define PORT 59000
+#define PORT_BG 58900
 #define BUFFER 512
+#define CONFIG_BUFF 2048
+#define MAX_IP 24
 
 /*
  * Notes:

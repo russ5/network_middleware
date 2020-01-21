@@ -10,9 +10,6 @@
 #include "mw_internal.h"
 #include "mw_public.h"
 
-#define MAX_IP 24
-#define PORT_BG 58900
-
 /** KNOWN ISSUES
  *      - Background wont loop (bind failed: Address already in use)
  */
