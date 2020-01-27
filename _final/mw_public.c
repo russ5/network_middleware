@@ -77,7 +77,7 @@ int * starSetup(int nodeId, char * configPath) {
 // User Function
 int * fullyConnectedSetup(char * configPath, int port) {
     struct Config * machines = readConfig(configPath);                   // Struct for storing the config file
-    char * appPath = "./test/fullyTest";
+    char * appPath = "./test/fulltest";
     int numOfMachines = getNumOfMachines(configPath);
     int nodeId;
     int i;

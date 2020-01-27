@@ -10,7 +10,7 @@ void main(int argc, char const *argv[]) {
     int port = atoi(argv[1]);
     char * msg = "Test message";
     int * sockIds;
-    sockIds = fullyConnectedSetup("./ringTestConfig.txt", port);
+    sockIds = fullyConnectedSetup("./test/ringTestConfig.txt", port);
 //    if(port == 59000){
 //        printf("Running node 0\n");
 //        Send(1, msg, strlen(msg), sockIds);

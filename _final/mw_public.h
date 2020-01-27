@@ -43,7 +43,7 @@ int starSetup( /* Args? */ );
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int fullyConnectedSetup(int comIds[], char * configPath);
+int * fullyConnectedSetup(char * configPath, int port);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
