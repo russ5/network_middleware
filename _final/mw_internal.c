@@ -216,6 +216,124 @@ int * starConnect (struct Config * nodes) {
     return client_socket;
 }
 
+int * fullConnect(struct Config * machines, int nodeId, int numOfMachines){
+    int client_sockets[numOfMachines - 1 - nodeId];
+    for(int i = nodeId + 1; i < numOfMachines; i++){
+        client_sockets[i - nodeId - 1] = Connect(machines[i].ip, machines[i].port);
+    }
+    return client_sockets;
+}
+
+int * fullConnectListenAccept(int port, int nodeNum){
+    int opt = 1;
+    int listening_socket , addrlen , new_socket , client_sockets[nodeNum + 1], activity, valread , sd;
+    int max_sd;
+    struct sockaddr_in address;
+
+    fd_set readfds;
+
+    // Initialise all client_sockets[] to 0.
+    //  # of client_sockets[]s is the same as node num
+    for (int i = 0; i < nodeNum; i++)
+    {
+        client_sockets[i] = 0;
+    }
+
+    // Listening socket
+    if( (listening_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
+    {
+        perror("socket failed");
+        exit(EXIT_FAILURE);
+    }
+
+    if( setsockopt(listening_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&opt,
+                   sizeof(opt)) < 0 )
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
+    address.sin_family = AF_INET;
+    address.sin_addr.s_addr = INADDR_ANY;
+    address.sin_port = htons(port);
+
+    if (bind(listening_socket, (struct sockaddr *)&address, sizeof(address))<0)
+    {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+    printf("Listener on port %d \n", port);
+
+    // Queue can be same size as the node num
+    if (listen(listening_socket, nodeNum) < 0)
+    {
+        perror("listen");
+        exit(EXIT_FAILURE);
+    }
+
+    // Accept the incoming connection
+    addrlen = sizeof(address);
+    puts("Waiting for connections ...");
+    // Wait for more connections until there are as many numOfConnections as the nodeId
+    int numOfConnections = 0;
+    while(numOfConnections < nodeNum) {
+        //clear the socket set
+        FD_ZERO(&readfds);
+        //add master socket to set
+        FD_SET(listening_socket, &readfds);
+        max_sd = listening_socket;
+
+        //add child sockets to set
+        for (int i = 0; i < nodeNum; i++) {
+            //socket descriptor
+            sd = client_sockets[i];
+
+            //if valid socket descriptor then add to read list
+            if (sd > 0)
+                FD_SET(sd, &readfds);
+
+            //highest file descriptor number, need it for the select function
+            if (sd > max_sd)
+                max_sd = sd;
+        }
+
+        //wait for an activity on one of the sockets , timeout is NULL ,
+        //so wait indefinitely
+        activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+
+        if ((activity < 0) && (errno != EINTR)) {
+            printf("select error");
+        }
+
+        //If something happened on the master socket ,
+        //then its an incoming connection
+        if (FD_ISSET(listening_socket, &readfds)) {
+            if ((new_socket = accept(listening_socket,
+                                     (struct sockaddr *) &address, (socklen_t * ) & addrlen)) < 0) {
+                perror("accept");
+                exit(EXIT_FAILURE);
+            }
+            // Increment num of connections
+            numOfConnections = numOfConnections + 1;
+            //inform user of connection information
+            printf("New connection , socket fd is %d , ip is : %s , port : %d\n", new_socket,
+                   inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+
+            //add new socket to array of sockets
+            for (int i = 0; i < nodeNum; i++) {
+                //if position is empty
+                if (client_sockets[i] == 0) {
+                    client_sockets[i] = new_socket;
+                    printf("Adding to list of sockets as %d\n", i);
+
+                    break;
+                }
+            }
+        }
+    }
+    return client_sockets;
+}
+
 int listenAccept(int port, int * sockIds, int flag) {
     int sockfd, server_sock;
     struct sockaddr_in address;
@@ -229,7 +347,6 @@ int listenAccept(int port, int * sockIds, int flag) {
             perror("socket failed");
             exit(EXIT_FAILURE);
         }
-
         if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int))) {
             perror("setsockopt");
             exit(EXIT_FAILURE);
@@ -249,6 +366,12 @@ int listenAccept(int port, int * sockIds, int flag) {
     } else {
         sockfd = sockIds[1];                // listening sock already set up (avoid the dual bind)
     }
+    // Bind socket
+    if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
+        perror("bind failed");
+        exit(EXIT_FAILURE);
+    }
+
 // Wait for connect function call
     if (listen(sockfd, 3) < 0) {
         perror("listen");
