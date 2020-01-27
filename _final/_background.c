@@ -22,6 +22,7 @@ int main(int argc, char const *argv[]) {
     int num_nodes;
     int headerVal;
     int sockfd;
+    int sockIds[2];
     char str_num_nodes[32];
     char inst[1024], tmpBuff[1024];
     char ip[16];
@@ -39,9 +40,13 @@ int main(int argc, char const *argv[]) {
     while(1) {
         printf("Background launched at node %s\n", argv[1]);
         /// Wait for connection
-        nodeZero = listenAccept(PORT_BG + node);
+        if(j == 0) {
+            listenAccept(PORT_BG + node, sockIds, 1);
+        } else {
+            listenAccept(PORT_BG + node, sockIds, 2);
+        }
         /// Receive app name
-        read(nodeZero, inst, 1024);
+        read(sockIds[0], inst, 1024);
 
         strncpy(tmpBuff, inst, 3);                  // Split header to read
         tmpBuff[3] = '\0';                          // Manually add null terminator to app name length
@@ -54,13 +59,14 @@ int main(int argc, char const *argv[]) {
         /// Save config file (/tmp/config.txt)
 
         /// Close connection
-        close(nodeZero);
+        close(sockIds[0]);
 
         // Fork exec new prog (Pass the node ID?)
         sprintf(_node, "%d", node);
         char *args[] = {tmpBuff, _node, NULL};
         launchProg(args);
         printf("App finished\n");
+        j = 1;
         //sleep(20);
     }
 }

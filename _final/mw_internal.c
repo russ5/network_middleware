@@ -216,41 +216,39 @@ int * starConnect (struct Config * nodes) {
     return client_socket;
 }
 
-int listenAccept(int port) {
+int listenAccept(int port, int * sockIds, int flag) {
     int sockfd, server_sock;
     struct sockaddr_in address;
     int addrlen = sizeof(address);
+    int enable = 1;
     int i = 0;
 
 // Set up server and listen
-    if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-    }
-    int enable = 1;
-    if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int))) {
-        perror("setsockopt");
-        exit(EXIT_FAILURE);
-    }
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(port);
+    if(flag == 0 || flag == 1) {
+        if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
+            perror("socket failed");
+            exit(EXIT_FAILURE);
+        }
 
-    // Bind socket
-    if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-    }
-    /*
-    while(bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-        i++;
-        if(i == 3) {
+        if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int))) {
+            perror("setsockopt");
+            exit(EXIT_FAILURE);
+        }
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(port);
+
+        // Bind socket
+        if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
             perror("bind failed");
             exit(EXIT_FAILURE);
         }
-        //sleep(3);
+        if(flag == 1) {
+            sockIds[1] = sockfd;
+        }
+    } else {
+        sockfd = sockIds[1];                // listening sock already set up (avoid the dual bind)
     }
-    */
 // Wait for connect function call
     if (listen(sockfd, 3) < 0) {
         perror("listen");
@@ -262,5 +260,10 @@ int listenAccept(int port) {
         exit(EXIT_FAILURE);
     }
 
-    return server_sock;
+    sockIds[0] = server_sock;               // Assign important sock ID (used for communication)
+
+    if(flag == 0) {
+        close(sockfd);
+    }
+    return 1;
 }
