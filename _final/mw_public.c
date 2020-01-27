@@ -74,8 +74,40 @@ int * starSetup(int nodeId, char * configPath) {
 }
 
 // User Function
-int fullyConnectedSetup( /* Args? */ ) {
-
+int * fullyConnectedSetup(int comIds[], char * configPath) {
+    struct Config * machines = readConfig(configPath);                   // Struct for storing the config file
+    char * appPath = "./test/ringTest";
+    int numOfMachines = getNumOfMachines(configPath);
+    int nodeId;
+    int i;
+    // Identify self in config
+    for(i = 0; i < numOfMachines; i++){
+        if(checkIPMatch(machines[i].ip_address) && machines[i].port == port){
+            nodeId = i;
+            break;
+        }
+        if( i + 1 == numOfMachines){
+            perror("Error finding machine in config file");
+            exit(EXIT_FAILURE);
+        }
+    }
+    // Node 0 must reach out to other machines
+    if(nodeId == 0){
+        if(reachMiddleware(machines) != 1) {  // Distribute config file to every node
+            printf("Attempt to reach out to middleware failed");
+        }
+        return fullConnect(machines, nodeId, numOfMachines);
+    }
+    else{
+        int * inbound_sockets = fullConnectListenAccept(machines[nodeId].port, nodeId);
+        int * outbound_sockets = fullConnect(machines, nodeId, numOfMachines);
+        // As many connections as there are machines minus self
+        int nodes[numOfMachines - 1];
+        // Combine inbound and outbound sockets into a single array
+        memcpy(nodes, inbound_sockets, nodeId * sizeof(int));
+        memcpy(nodes + nodeId, outbound_sockets, (numOfMachines - 1 - nodeId) * sizeof(int));
+        return nodes;
+    }
 }
 
 // User Function

@@ -145,5 +145,5 @@ int * starConnect(char * ip, int port);
 **  ================================================================================================================= */
 int listenAccept(int port);                                                 /// Finished
 
-// Incorporate Config reading code?
+int * fullConnect(struct Config * machines, int nodeId, int numOfMachines);
 #endif
