@@ -75,15 +75,15 @@ int * starSetup(int nodeId, char * configPath) {
 }
 
 // User Function
-int * fullyConnectedSetup(int comIds[], char * configPath) {
+int * fullyConnectedSetup(char * configPath, int port) {
     struct Config * machines = readConfig(configPath);                   // Struct for storing the config file
-    char * appPath = "./test/ringTest";
+    char * appPath = "./test/fullyTest";
     int numOfMachines = getNumOfMachines(configPath);
     int nodeId;
     int i;
     // Identify self in config
     for(i = 0; i < numOfMachines; i++){
-        if(checkIPMatch(machines[i].ip_address) && machines[i].port == port){
+        if(checkIPMatch(machines[i].ip) && machines[i].port == port){
             nodeId = i;
             break;
         }
@@ -94,7 +94,7 @@ int * fullyConnectedSetup(int comIds[], char * configPath) {
     }
     // Node 0 must reach out to other machines
     if(nodeId == 0){
-        if(reachMiddleware(machines) != 1) {  // Distribute config file to every node
+        if(reachMiddleware(machines, configPath, appPath) != 1) {  // Distribute config file to every node
             printf("Attempt to reach out to middleware failed");
         }
         return fullConnect(machines, nodeId, numOfMachines);

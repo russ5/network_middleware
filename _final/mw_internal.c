@@ -219,13 +219,13 @@ int * starConnect (struct Config * nodes) {
 int * fullConnect(struct Config * machines, int nodeId, int numOfMachines){
     int client_sockets[numOfMachines - 1 - nodeId];
     for(int i = nodeId + 1; i < numOfMachines; i++){
-        client_sockets[i - nodeId - 1] = connect(machines[i].ip, machines[i].port);
+        client_sockets[i - nodeId - 1] = Connect(machines[i].ip, machines[i].port);
     }
     return client_sockets;
 }
 
 int * fullConnectListenAccept(int port, int nodeNum){
-    int opt = TRUE;
+    int opt = 1;
     int listening_socket , addrlen , new_socket , client_sockets[nodeNum + 1], activity, valread , sd;
     int max_sd;
     struct sockaddr_in address;
@@ -265,7 +265,7 @@ int * fullConnectListenAccept(int port, int nodeNum){
     printf("Listener on port %d \n", port);
 
     // Queue can be same size as the node num
-    if (listen(listening_socket, node_num) < 0)
+    if (listen(listening_socket, nodeNum) < 0)
     {
         perror("listen");
         exit(EXIT_FAILURE);
@@ -284,9 +284,9 @@ int * fullConnectListenAccept(int port, int nodeNum){
         max_sd = listening_socket;
 
         //add child sockets to set
-        for (i = 0; i < node_num; i++) {
+        for (int i = 0; i < nodeNum; i++) {
             //socket descriptor
-            sd = client_socket[i];
+            sd = client_sockets[i];
 
             //if valid socket descriptor then add to read list
             if (sd > 0)
@@ -320,7 +320,7 @@ int * fullConnectListenAccept(int port, int nodeNum){
                    inet_ntoa(address.sin_addr), ntohs(address.sin_port));
 
             //add new socket to array of sockets
-            for (i = 0; i < node_num; i++) {
+            for (int i = 0; i < nodeNum; i++) {
                 //if position is empty
                 if (client_sockets[i] == 0) {
                     client_sockets[i] = new_socket;
