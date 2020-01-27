@@ -150,5 +150,6 @@ int * starConnect(struct Config * nodes);
 int listenAccept(int port, int * sockIds, int flag);                                                 /// Finished
 
 int * fullConnect(struct Config * machines, int nodeId, int numOfMachines);
+int * fullConnectListenAccept(int port, int nodeNum);
 
 #endif
