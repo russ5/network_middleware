@@ -135,16 +135,20 @@ int Connect(char * ip, int port);                                           /// 
 int * starConnect(struct Config * nodes);
 
 /** #FUNCTION# =========================================================================================================
- *  Name ..........:
- *  Description ...:
- *  Parameters ....:
- *  Return values .:
- *  Modified ......:
+ *  Name ..........: listenAccept
+ *  Description ...: Performs all step necessary for a server-like listening and accept procedure
+ *  Parameters ....: int port
+ *                   int sockIds[2] (0: Is the accepted connection ID, 1: Is the listening ID)
+ *                   int flag (0: Close listening socket when done, 1: Do not close listening socket, 2: Listening socket already bound)
+ *  Return values .: int pass/fail (1: Pass)
+ *  Modified ......: 2020/01/24 - Added flags to control the release and bind behaviour
+ *                   2020/01/27 - Added an array arg to store sock IDs and pass sock IDs
+ *                                Changed return to pass/fail int
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int listenAccept(int port);                                                 /// Finished
+int listenAccept(int port, int * sockIds, int flag);                                                 /// Finished
 
 int * fullConnect(struct Config * machines, int nodeId, int numOfMachines);
-int * fullConnectListenAccept(int port, int nodeNum);
+
 #endif
