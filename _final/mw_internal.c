@@ -206,11 +206,11 @@ int Connect(char * ip, int port) {
 }
 
 int * starConnect (struct Config * nodes) {
-    int client_socket[30];
+    static int client_socket[30];
 
     // Hardcoded loop to add clients
     for (int i = 1; i < 4; i++) {
-         client_socket[i-1] = connect(nodes[i].ip, nodes[i].port); // add clients to array
+         client_socket[i-1] = Connect(nodes[i].ip, nodes[i].port); // add clients to array
     }
 
     return client_socket;

@@ -25,8 +25,8 @@ void main(int argc, char const *argv[]) {
     else {
         // Not sure what needs changing here for star
         centralSock = starSetup(node, "");
-        buffer = Receive(0, sockIds);
-        Send(0, buffer, 512, sockIds);
+        buffer = Receive(buffer, 0, sockIds);
+//        Send(0, buffer, 512, sockIds);
         close(centralSock);
     }
 
