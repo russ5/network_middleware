@@ -154,6 +154,9 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             ip = machines[i].ip;    // Local machine
             port = 58901+i;
             bg_sock = Connect(ip, port);
+            if(bg_sock < 0) {
+                return -1;
+            }
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
             strcat(buff, progPath);                              // Add msg onto end of buffer
@@ -365,11 +368,6 @@ int listenAccept(int port, int * sockIds, int flag) {
         }
     } else {
         sockfd = sockIds[1];                // listening sock already set up (avoid the dual bind)
-    }
-    // Bind socket
-    if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
     }
 
 // Wait for connect function call

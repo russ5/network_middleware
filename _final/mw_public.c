@@ -15,26 +15,33 @@
 int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config path here?
     struct Config * machines;                   // Struct for storing the config file
     int sockIds[2];
+    int numMachines = 0;
     char * appPath = "./test/ringTest";
     // Loop variables
     int i;
 
     if(nodeId == 0) {                                               // Node 0 must reach out to middleware
         machines = readConfig(configPath);
+        numMachines = getNumOfMachines(configPath);
+        //printf("%d\n", numMachines);
         if(reachMiddleware(machines, configPath, appPath) != 1) {            // Reach middleware step goes to every node to distribute config file
-            printf("Attempt to reach out to middleware failed");
+            printf("Attempt to reach out to middleware failed\n");
+            return -1;
         }
+        //printf("%d\n", machines[nodeId].port);
         comIds[nodeId+1] = Connect(machines[1].ip, machines[1].port);
         listenAccept(machines[nodeId].port, sockIds, 0);
-        comIds[3] = sockIds[0];                                                /// Needs logic (number of nodes would do)
+        comIds[numMachines-1] = sockIds[0];
         printf("Made it full circle\n");
     } else {
         // Read the config
         machines = readConfig(configPath);                         /// Will need to change to tmp directory
+        numMachines = getNumOfMachines(configPath);                /// Will need to change to tmp directory
         // Wait for previous node to reach out
+        //printf("%d\n", machines[nodeId].port);
         listenAccept(machines[nodeId].port, sockIds, 0);
         comIds[nodeId-1] = sockIds[0];
-        if(nodeId+1 < 4){                                         /// Need to remove hard coding
+        if(nodeId+1 < numMachines){                               
             comIds[nodeId+1] = Connect(machines[nodeId+1].ip, machines[nodeId+1].port);
         } else {
             //printf("Node 3 connection\n");

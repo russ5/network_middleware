@@ -6,7 +6,7 @@
 #include "../mw_public.h"
 
 void main(int argc, char const *argv[]) {
-    printf("Main Loop\n");
+    printf("Test launched\n");
     int node = atoi(argv[1]);
     char * msg = "Testing the elevated connection scheme\n";
     char buffer[BUFFER];
@@ -14,7 +14,11 @@ void main(int argc, char const *argv[]) {
 
     if(node == 0){
         printf("Start Ring Setup\n");
-        ringSetup(comIds, node, "ringTestConfig.txt");
+        if(ringSetup(comIds, node, "ringTestConfig.txt") != 1) {
+            printf("Ring setup failed\n");
+            return;
+        }
+        //printf("Ring setup complete\n");
         Send(1, msg, strlen(msg), comIds);
         Receive(buffer, 3, comIds);
         printf("%s", buffer);
