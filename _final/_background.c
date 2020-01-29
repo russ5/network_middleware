@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
 
         char * tmp = inst;
         /// Receive config file
-        //recConfig(nodeZero);
+        recConfig(nodeZero);
         /// Save config file (/tmp/config.txt)
 
         /// Close connection

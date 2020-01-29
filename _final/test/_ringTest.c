@@ -10,7 +10,7 @@ void main(int argc, char const *argv[]) {
     int node = atoi(argv[1]);
     char * msg = "Testing the elevated connection scheme\n";
     char buffer[BUFFER];
-    int comIds[64];
+    int comIds[MAX_MACHINES];
 
     if(node == 0){
         printf("Start Ring Setup\n");
@@ -26,10 +26,9 @@ void main(int argc, char const *argv[]) {
         ringSetup(comIds, node, "test/ringTestConfig.txt");
         Receive(buffer, node-1, comIds);
         if(node == 3) {
-            Send(0, buffer, 512, comIds);
+            Send(0, buffer, BUFFER, comIds);
         } else {
-            //printf("%d\n", comIds[node+1]);
-            Send(node+1, buffer, 512, comIds);
+            Send(node+1, buffer, BUFFER, comIds);
         }
 
         printf("%s", buffer);

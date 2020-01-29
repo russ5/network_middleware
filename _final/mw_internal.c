@@ -1,10 +1,11 @@
 #include <unistd.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
 #include <stdio.h>
 #include <errno.h>
 #include <netdb.h>
-#include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -127,13 +128,54 @@ void launchProg(char * args[]) {
     }
 }
 
-void sendConfig(int port, char * ip, char * configPath) {
-    printf("sendConfig: Needs to be polished\n");
+void sendConfig(int bg_sock, char * configPath) {
+    //struct stat st;
+    int nread;
+    char buff[CONFIG_BUFF];
+    FILE * fp_config;
+
+    fp_config = fopen(configPath, "r");
+    if(fp_config == NULL) {
+        printf("File open error\n");
+        return;
+    }
+
+    while(1) {
+        nread = fread(buff, 1, CONFIG_BUFF, fp_config);
+        printf("Bytes read: %d\n", nread);
+        if(nread > 0) {
+            send(bg_sock, buff, nread, 0);
+        }
+        if(nread < CONFIG_BUFF)
+            break;
+    }
+
+    fclose(fp_config);
+    //printf("sendConfig: Needs to be polished\n");
 }
 
 /// Change this to save config to temp directory seems better
 void recConfig(int sockId) {
-    printf("recConfig: needs to be polished\n");
+    int bytesReceived;
+    char buff[CONFIG_BUFF];
+    FILE * fp_config;
+
+    fp_config = fopen("/tmp/config.txt", "w");
+    if(fp_config == NULL) {
+        printf("Error opening/creating file\n");
+        return;
+    }
+
+    while((bytesReceived = read(sockId, buff, CONFIG_BUFF)) > 0)
+    {
+        printf("Bytes received %d\n",bytesReceived);
+        // recvBuff[n] = 0;
+        fwrite(buff, 1, bytesReceived, fp_config);
+        // printf("%s \n", recvBuff);
+    }
+
+    fclose(fp_config);
+    //printf("recConfig: needs to be polished\n");
 }
 
 int reachMiddleware(struct Config * machines, char * configPath, char * progPath) {
@@ -162,7 +204,7 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             strcat(buff, progPath);                              // Add msg onto end of buffer
             send(bg_sock, buff, 128, 0);
             /// Send Config
-            //sendConfig(port, ip, configPath);                   // May change args for this func
+            sendConfig(bg_sock, configPath);                   // May change args for this func
             /// Close the socket
             close(bg_sock);
         }
@@ -176,7 +218,7 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             strcat(buff, progPath);                              // Add msg onto end of buffer
             send(bg_sock, progPath, 128, 0);
             /// Send Config
-            sendConfig(port, ip, configPath);               // May change args for this func
+            sendConfig(bg_sock, configPath);               // May change args for this func
             /// Close the socket
             close(bg_sock);
         }

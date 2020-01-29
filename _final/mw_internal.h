@@ -69,10 +69,10 @@ void checkHostEntry(struct hostent * hostentry);                      /// Finish
 void checkIPbuffer(char *IPbuffer);
 
 /** #FUNCTION# =========================================================================================================
- *  Name ..........:
- *  Description ...:
- *  Parameters ....:
- *  Return values .:
+ *  Name ..........: launchProg
+ *  Description ...: Used to launch a program and pause the function that calls this one
+ *  Parameters ....: char * args[]: The argument list with minimum requirement of the app name at [0] and NULL at the end
+ *  Return values .: void
  *  Modified ......:
  *  Remarks .......:
  *  Related .......:
@@ -88,7 +88,7 @@ void launchProg(char * args[]);                                             /// 
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-void sendConfig(int port, char * ip, char * configPath);                    /// Have code externally
+void sendConfig(int bg_sock, char * configPath);                    /// Have code externally
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -105,7 +105,7 @@ void recConfig(int sockId);                                                 /// 
  *  Name ..........: reachMiddleware
  *  Description ...: Connect to each node's running middleware and launch the application
  *  Parameters ....: struct Config * machines, char * configPath, char * progPath
- *  Return values .:
+ *  Return values .: int pass/fail
  *  Modified ......:
  *  Remarks .......: progPath variable should start with "./"
  *  Related .......:
@@ -113,10 +113,11 @@ void recConfig(int sockId);                                                 /// 
 int reachMiddleware(struct Config * machines, char * configPath, char * progPath);           ///
 
 /** #FUNCTION# =========================================================================================================
- *  Name ..........:
- *  Description ...:
- *  Parameters ....:
- *  Return values .:
+ *  Name ..........: Connect
+ *  Description ...: Attempt connection to specified IP and port
+ *  Parameters ....: char * ip: Pointer to the string of the IP
+ *                   int port: Port that target machine is listening on
+ *  Return values .: int socket ID for communication purposes
  *  Modified ......:
  *  Remarks .......:
  *  Related .......:

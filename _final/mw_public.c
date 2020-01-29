@@ -122,9 +122,9 @@ int * fullyConnectedSetup(char * configPath, int port) {
 }
 
 // User Function
-void Send(int nodeId, char * data, int dataLen, int * sockIds) {
+void Send(int nodeDest, char * data, int dataLen, int * sockIds) {
     /// Need loops to ensure all of the data is sent
-    send(sockIds[nodeId], data, BUFFER, 0);
+    send(sockIds[nodeDest], data, BUFFER, 0);
 }
 
 // User Function
