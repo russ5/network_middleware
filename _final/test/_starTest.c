@@ -6,27 +6,39 @@
 #include "../mw_public.h"
 
 void main(int argc, char const *argv[]) {
-    printf("Main Loop");
     int node = atoi(argv[1]);
-    char * msg = "Testing star connection";
-    char * buffer;
-    int * sockIds;
+    char * msg = "Hello from the central node!\n";
+    char buffer[BUFFER];
+    int * sockIds = (int *) malloc(4* sizeof(int));
     int centralSock;
 
     if(node == 0) {
-        printf("Start Star Setup");
-        sockIds = starSetup(node, "starTestConfig.txt");
-        Send(1, msg, strlen(msg), sockIds);
+        starSetup(sockIds, node, "starTestConfig.txt");
 
-        for (int i = 1; i < 4; i++) {
+        for(int i = 0; i < 3; i++)
+            printf("Node %d - addr: 0x%08X, val: %d\n", i+1, &sockIds[i], sockIds[i]);
+
+        for (int i = 0; i < 3; i++) {
+            if (sockIds[i] == -1) {
+                printf("Error: no connection at node %d\n", i);
+            }
+            else {
+                printf("Sending msg to node %d\n", i);
+                Send(i, msg, BUFFER, sockIds);
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            printf("Closing connection to node %d\n", i);
             close(sockIds[i]);
         }
     }
     else {
         // Not sure what needs changing here for star
-        centralSock = starSetup(node, "");
-        buffer = Receive(buffer, 0, sockIds);
-//        Send(0, buffer, 512, sockIds);
+        starSetup(sockIds, node, "starTestConfig.txt");
+        Receive(buffer, 0, sockIds);
+        printf("Receive completed\n");
+        printf("Central node: %s", buffer);
         close(centralSock);
     }
 

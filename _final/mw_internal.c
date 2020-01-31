@@ -250,17 +250,6 @@ int Connect(char * ip, int port) {
     return client_sock;
 }
 
-int * starConnect (struct Config * nodes) {
-    static int client_socket[30];
-
-    // Hardcoded loop to add clients
-    for (int i = 1; i < 4; i++) {
-         client_socket[i-1] = Connect(nodes[i].ip, nodes[i].port); // add clients to array
-    }
-
-    return client_socket;
-}
-
 int * fullConnect(struct Config * machines, int nodeId, int numOfMachines){
     int client_sockets[numOfMachines - 1 - nodeId];
     for(int i = nodeId + 1; i < numOfMachines; i++){
