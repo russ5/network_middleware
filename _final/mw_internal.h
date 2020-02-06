@@ -8,6 +8,7 @@
 #define BUFFER 512
 #define CONFIG_BUFF 2048
 #define MAX_IP 24
+#define HEADER_LEN 3
 
 /*
  * Notes:

@@ -46,16 +46,17 @@ int main(int argc, char const *argv[]) {
             listenAccept(PORT_BG + node, sockIds, 2);
         }
         /// Receive app name
-        read(sockIds[0], inst, 1024);
+        read(sockIds[0], inst, 3);                  // Read header
+        inst[3] = '\0';                             // Manually add null terminator to header length
+        headerVal = atoi(inst);                     // Convert header to integer
+        read(sockIds[0], inst, headerVal);          // Read app name info
+        printf("%s\n", inst);
 
-        strncpy(tmpBuff, inst, 3);                  // Split header to read
-        tmpBuff[3] = '\0';                          // Manually add null terminator to app name length
-        headerVal = atoi(tmpBuff);                  // Convert header to integer
-        strncpy(tmpBuff, inst+3, 3+headerVal);      // Strip out header (length)
-
-        char * tmp = inst;
         /// Receive config file
-        recConfig(nodeZero);
+        if(node < 2) {
+            //recConfig(nodeZero);
+            printf("Escaped recConfig\n");
+        }
         /// Save config file (/tmp/config.txt)
 
         /// Close connection
@@ -63,9 +64,10 @@ int main(int argc, char const *argv[]) {
 
         // Fork exec new prog (Pass the node ID?)
         sprintf(_node, "%d", node);
-        char *args[] = {tmpBuff, _node, NULL};
+        char *args[] = {inst, _node, NULL};
         launchProg(args);
         printf("App finished\n");
+
         j = 1;
         //sleep(20);
     }

@@ -129,34 +129,35 @@ void launchProg(char * args[]) {
 }
 
 void sendConfig(int bg_sock, char * configPath) {
-    //struct stat st;
-    int nread;
     char buff[CONFIG_BUFF];
-    FILE * fp_config;
+    FILE *fp_config;
 
     fp_config = fopen(configPath, "r");
-    if(fp_config == NULL) {
+    if (fp_config == NULL) {
         printf("File open error\n");
         return;
     }
 
+    while (fgets(buff, CONFIG_BUFF, fp_config) != NULL) // fgets reads upto MAX character or EOF
+        write(bg_sock, buff, sizeof(buff));  // sent the file data to stream
+
+    /*
     while(1) {
         nread = fread(buff, 1, CONFIG_BUFF, fp_config);
-        printf("Bytes read: %d\n", nread);
+        //printf("Bytes read: %d\n", nread);
         if(nread > 0) {
             send(bg_sock, buff, nread, 0);
         }
         if(nread < CONFIG_BUFF)
             break;
     }
-
+    */
     fclose(fp_config);
     //printf("sendConfig: Needs to be polished\n");
 }
 
 /// Change this to save config to temp directory seems better
 void recConfig(int sockId) {
-    int bytesReceived;
     char buff[CONFIG_BUFF];
     FILE * fp_config;
 
@@ -166,15 +167,20 @@ void recConfig(int sockId) {
         return;
     }
 
+    while(read(sockId, buff, CONFIG_BUFF) > 0)
+        fprintf(fp_config, "%s", buff);
+
+    fclose(fp_config);
+    return;
+    /*
     while((bytesReceived = read(sockId, buff, CONFIG_BUFF)) > 0)
     {
         printf("Bytes received %d\n",bytesReceived);
-        // recvBuff[n] = 0;
         fwrite(buff, 1, bytesReceived, fp_config);
-        // printf("%s \n", recvBuff);
     }
+    */
 
-    fclose(fp_config);
+
     //printf("recConfig: needs to be polished\n");
 }
 
@@ -202,7 +208,7 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
             strcat(buff, progPath);                              // Add msg onto end of buffer
-            send(bg_sock, buff, 128, 0);
+            send(bg_sock, buff, strlen(progPath)+HEADER_LEN, 0);
             /// Send Config
             sendConfig(bg_sock, configPath);                   // May change args for this func
             /// Close the socket
