@@ -1,6 +1,0 @@
-**/.idea
-**/cmake-build-debug
-*.exe
-*.exe.stackdump
-_final/testCon.c
-.gitignore
