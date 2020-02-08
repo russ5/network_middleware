@@ -55,7 +55,7 @@ int main(int argc, char const *argv[]) {
         /// Receive config file
         if(node < 2) {
             //recConfig(nodeZero);
-            printf("Escaped recConfig\n");
+            //printf("Escaped recConfig\n");
         }
         /// Save config file (/tmp/config.txt)
 

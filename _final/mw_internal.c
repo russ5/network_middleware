@@ -210,7 +210,7 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             strcat(buff, progPath);                              // Add msg onto end of buffer
             send(bg_sock, buff, strlen(progPath)+HEADER_LEN, 0);
             /// Send Config
-            sendConfig(bg_sock, configPath);                   // May change args for this func
+            //sendConfig(bg_sock, configPath);                   // May change args for this func
             /// Close the socket
             close(bg_sock);
         }
