@@ -54,34 +54,35 @@ int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config 
 }
 
 // User Function
-int * starSetup(int nodeId, char * configPath) {
+int starSetup(int clientNodes[], int nodeId, char * configPath) {
 
     struct Config * nodes;  // Struct for storing the config file information
-    char * appPath = "./test/ringTest";
+    char * appPath = "./test/starTest";
     int sockIds[2];
 
     if(configPath != "") {
         nodes = readConfig(configPath);
-        // Determine nodeId
     }
 
     if (nodeId == 0) {
-        int * client_nodes;
 
-        if(reachMiddleware(nodes, configPath, appPath) != 1) {  // Distribute config file to every node
+        if(reachMiddleware(nodes, configPath, appPath) != 1) {  // Reach out to other nodes and launch app
             printf("Attempt to reach out to middleware failed");
         }
 
-        // somehow wait until all clients are ready and waiting?
-
-        client_nodes = starConnect(nodes);
-        return client_nodes;
+        for (int i = 1; i < 4; i++) {
+            printf("Connecting to node %d, ip %s, port %d\n", i, nodes[i].ip, nodes[i].port);
+            clientNodes[i-1] = Connect(nodes[i].ip, nodes[i].port); // add clients to array
+        }
     }
     else {
-        listenAccept(PORT, sockIds, 0);
-        int * central_node = sockIds[0];
-        return central_node;
+        printf("Listening at port %d\n", (PORT + nodeId));
+        listenAccept(nodes[nodeId].port, sockIds, 1);
+        clientNodes[0] = sockIds[0];
+        printf("Connection made: %d\n", clientNodes[0]);
     }
+
+    return 1;
 }
 
 // User Function
