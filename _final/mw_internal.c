@@ -194,6 +194,7 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
     int i = 0;
     int port;
     int bg_sock;        // background socket
+    int numMachines;
     char * ip;
     char buff[128];
 
@@ -215,7 +216,8 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             close(bg_sock);
         }
     } else {
-        for (i = 0; i++; i < 3) {                /// NEEDS TO BE FIXED (SHOULDN'T BE HARD CODED)
+        numMachines = getNumOfMachines(configPath);
+        for (i = 1; i < numMachines; i++) {
             port = PORT_BG;
             ip = machines[i].ip;
             bg_sock = Connect(ip, port);
@@ -224,7 +226,7 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             strcat(buff, progPath);                              // Add msg onto end of buffer
             send(bg_sock, progPath, 128, 0);
             /// Send Config
-            sendConfig(bg_sock, configPath);               // May change args for this func
+            //sendConfig(bg_sock, configPath);               // May change args for this func
             /// Close the socket
             close(bg_sock);
         }

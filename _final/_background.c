@@ -63,6 +63,9 @@ int main(int argc, char const *argv[]) {
         close(sockIds[0]);
 
         // Fork exec new prog (Pass the node ID?)
+        if(node == 0) {                             ///
+                                                    /// For operation on multiple PCs need to determine node ID
+        }                                           ///
         sprintf(_node, "%d", node);
         char *args[] = {inst, _node, NULL};
         launchProg(args);
