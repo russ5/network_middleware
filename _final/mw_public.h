@@ -11,7 +11,30 @@
  *
  *  - Need to setup the middleware app functionality
  */
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........: readConfig
+ *  Description ...: read the configuration file
+ *  Parameters ....: char *configPath
+ *  Return values .: struct Config* (array of port, IP and nodeID)
+ *  Modified ......: Changed machine struct to Config struct
+ *  Remarks .......: See Tae for info about functionality
+ *                   Has been modified slightly for port into mw_internal so may not work
+ *  Related .......:
+**  ================================================================================================================= */
+struct Config * readConfig(char * configPath);                              /// Finished
 
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........: getNumOfMachines
+ *  Description ...: read the configuration file and returns number of machines in network
+ *  Parameters ....: char *configPath
+ *  Return values .: int that indicates number of machines
+ *  Modified ......:
+ *  Remarks .......: See Tae for info about functionality
+ *                   Has been modified slightly for port into mw_internal so may not work
+ *  Related .......:
+**  ================================================================================================================= */
+int getNumOfMachines(char * configPath);                              /// Finished
+int getCurrNode(int numOfMachines, struct Config * machines);
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
  *  Description ...:
@@ -32,7 +55,7 @@ int ringSetup(int comIds[], int nodeId, char * configPath); // Include config pa
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int starSetup( /* Args? */ );
+int * starSetup(char * configPath, char * appPath);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -43,7 +66,7 @@ int starSetup( /* Args? */ );
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int * fullyConnectedSetup(char * configPath, int port);
+int * fullyConnectedSetup(char * configPath, char * appPath);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:

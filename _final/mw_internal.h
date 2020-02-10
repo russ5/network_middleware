@@ -25,31 +25,11 @@ struct Config {
 };
 
 /***** Functions *****/
+void checkHostName(int hostname);                                     /// Finished
 
-/** #FUNCTION# =========================================================================================================
- *  Name ..........: readConfig
- *  Description ...: read the configuration file
- *  Parameters ....: char *configPath
- *  Return values .: struct Config* (array of port, IP and nodeID)
- *  Modified ......: Changed machine struct to Config struct
- *  Remarks .......: See Tae for info about functionality
- *                   Has been modified slightly for port into mw_internal so may not work
- *  Related .......:
-**  ================================================================================================================= */
-struct Config * readConfig(char * configPath);                              /// Finished
+void checkHostEntry(struct hostent * hostentry);                      /// Finished
 
-/** #FUNCTION# =========================================================================================================
- *  Name ..........: getNumOfMachines
- *  Description ...: read the configuration file and returns number of machines in network
- *  Parameters ....: char *configPath
- *  Return values .: int that indicates number of machines
- *  Modified ......:
- *  Remarks .......: See Tae for info about functionality
- *                   Has been modified slightly for port into mw_internal so may not work
- *  Related .......:
-**  ================================================================================================================= */
-int getNumOfMachines(char * configPath);                              /// Finished
-
+void checkIPbuffer(char *IPbuffer);
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: checkIPMatch
  *  Description ...: Checks if inputted IP matches the current machine's IP
@@ -61,13 +41,6 @@ int getNumOfMachines(char * configPath);                              /// Finish
  *  Related .......: checkHostName, checkHostEntry, checkIPbuffer are all helper functions for this function
 **  ================================================================================================================= */
 int checkIPMatch(char *ipAddress);                                    /// Finished
-
-void checkHostName(int hostname);                                     /// Finished
-
-void checkHostEntry(struct hostent * hostentry);                      /// Finished
-
-void checkIPbuffer(char *IPbuffer);
-
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
  *  Description ...:
@@ -110,7 +83,7 @@ void recConfig(int sockId);                                                 /// 
  *  Remarks .......: progPath variable should start with "./"
  *  Related .......:
 **  ================================================================================================================= */
-int reachMiddleware(struct Config * machines, char * configPath, char * progPath);           ///
+int reachMiddleware(struct Config * machines, char * progPath, int numOfMachines);           ///
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -150,6 +123,6 @@ int * starConnect(struct Config * nodes);
 int listenAccept(int port, int * sockIds, int flag);                                                 /// Finished
 
 int * fullConnect(struct Config * machines, int nodeId, int numOfMachines);
-int * fullConnectListenAccept(int port, int nodeNum);
+int * fullConnectListenAccept(int port, int nodeNum, int flag);
 
 #endif

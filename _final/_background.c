@@ -38,12 +38,11 @@ int main(int argc, char const *argv[]) {
     }
     // Loop so app runs in background permanently
     while(1) {
-        printf("Background launched at node %s\n", argv[1]);
         /// Wait for connection
         if(j == 0) {
-            listenAccept(PORT_BG + node, sockIds, 1);
+            listenAccept(PORT_BG, sockIds, 1);
         } else {
-            listenAccept(PORT_BG + node, sockIds, 2);
+            listenAccept(PORT_BG, sockIds, 2);
         }
         /// Receive app name
         read(sockIds[0], inst, 1024);
@@ -52,15 +51,11 @@ int main(int argc, char const *argv[]) {
         tmpBuff[3] = '\0';                          // Manually add null terminator to app name length
         headerVal = atoi(tmpBuff);                  // Convert header to integer
         strncpy(tmpBuff, inst+3, 3+headerVal);      // Strip out header (length)
-
         char * tmp = inst;
-        /// Receive config file
-        //recConfig(nodeZero);
-        /// Save config file (/tmp/config.txt)
 
         /// Close connection
         close(sockIds[0]);
-
+        printf("%s\n", tmpBuff);
         // Fork exec new prog (Pass the node ID?)
         sprintf(_node, "%d", node);
         char *args[] = {tmpBuff, _node, NULL};

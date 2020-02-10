@@ -12,58 +12,6 @@
 
 #include "mw_internal.h"
 
-struct Config * readConfig(char * configPath) {
-    FILE *fp;
-    char str[MAXCHAR];
-    fp = fopen(configPath, "r");
-    if (fp == NULL){
-        printf("Could not open file %s\n",configPath);
-        exit(EXIT_FAILURE);
-    }
-
-    static struct Config* machines;
-    machines = malloc((sizeof(int) + sizeof(char) * 30) * 15);
-    int line_count = 0;
-    char *pt;
-    while (fgets(str, MAXCHAR, fp) != NULL) {
-        if (line_count > 0) {
-            pt = strtok(str, ",");
-            int is_it_ip = 1;
-            while(pt != NULL){
-                if(is_it_ip == 1){
-                    strcpy(machines[line_count - 1].ip, pt);
-                    is_it_ip = 0;
-                }
-                else if(is_it_ip == 0){
-                    machines[line_count - 1].port = atoi(pt);
-                }
-                pt = strtok(NULL, ",");
-            }
-            machines[line_count - 1].nodeID = line_count - 1;
-        }
-        line_count++;
-    }
-    fclose(fp);
-    return machines;
-}
-
-int getNumOfMachines(char * configPath){
-    FILE *fp;
-    char str[MAXCHAR];
-    fp = fopen(configPath, "r");
-    if (fp == NULL){
-        printf("Could not open file %s",configPath);
-        exit(EXIT_FAILURE);
-    }
-    int net_top;
-    int line_count = 0;
-    while (fgets(str, MAXCHAR, fp) != NULL) {
-        line_count++;
-    }
-    fclose(fp);
-    return --line_count;
-}
-
 int checkIPMatch(char *ipAddress){
     // Get IP Address of current machine
     char hostbuffer[256];
@@ -119,7 +67,8 @@ void launchProg(char * args[]) {
     pid_t childPid;
     childPid = fork();
     if (childPid == 0) {
-        //printf("Fork successful");
+        printf("Fork and execing %s\n", args[0]);
+        printf("%s\n", args[1]);
         execvp(args[0], args);
     } else {
         int returnStatus;
@@ -136,13 +85,12 @@ void recConfig(int sockId) {
     printf("recConfig: needs to be polished\n");
 }
 
-int reachMiddleware(struct Config * machines, char * configPath, char * progPath) {
+int reachMiddleware(struct Config * machines, char * progPath, int numOfMachines) {
     // Iterate over every node
     // connect to each node read from config
     // send app to launch & node ID
     // close connection
-    int localTest = 1;
-
+    int localTest = 0;
     int i = 0;
     int port;
     int bg_sock;        // background socket
@@ -164,16 +112,14 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             close(bg_sock);
         }
     } else {
-        for (i = 0; i++; i < 3) {                /// NEEDS TO BE FIXED (SHOULDN'T BE HARD CODED)
+        for (i = 1; i < numOfMachines;i++) {
             port = PORT_BG;
             ip = machines[i].ip;
             bg_sock = Connect(ip, port);
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
             strcat(buff, progPath);                              // Add msg onto end of buffer
-            send(bg_sock, progPath, 128, 0);
-            /// Send Config
-            sendConfig(port, ip, configPath);               // May change args for this func
+            send(bg_sock, buff, 128, 0);
             /// Close the socket
             close(bg_sock);
         }
@@ -201,7 +147,6 @@ int Connect(char * ip, int port) {
         printf("\nConnection Failed \n");
         return -1;
     }
-
     return client_sock;
 }
 
@@ -216,17 +161,19 @@ int * starConnect (struct Config * nodes) {
     return client_socket;
 }
 
-int * fullConnect(struct Config * machines, int nodeId, int numOfMachines){
-    int client_sockets[numOfMachines - 1 - nodeId];
-    for(int i = nodeId + 1; i < numOfMachines; i++){
-        client_sockets[i - nodeId - 1] = Connect(machines[i].ip, machines[i].port);
+int * fullConnect(struct Config * machines, int nodeNum, int numOfMachines){
+    int * client_sockets_ptr = (int*)malloc((numOfMachines - 1 - nodeNum)*sizeof(int));
+    for(int i = nodeNum + 1; i < numOfMachines; i++){
+        printf("Connecting to: %s : %i\n", machines[i].ip, machines[i].port);
+        client_sockets_ptr[i - nodeNum - 1] = Connect(machines[i].ip, machines[i].port);
     }
-    return client_sockets;
+    return client_sockets_ptr;
 }
 
-int * fullConnectListenAccept(int port, int nodeNum){
+int * fullConnectListenAccept(int port, int nodeNum, int flag){
     int opt = 1;
-    int listening_socket , addrlen , new_socket , client_sockets[nodeNum + 1], activity, valread , sd;
+    int listening_socket , addrlen , new_socket, activity, valread , sd;
+    int * client_sockets_ptr = (int*)malloc((nodeNum+1)*sizeof(int));
     int max_sd;
     struct sockaddr_in address;
 
@@ -236,9 +183,8 @@ int * fullConnectListenAccept(int port, int nodeNum){
     //  # of client_sockets[]s is the same as node num
     for (int i = 0; i < nodeNum; i++)
     {
-        client_sockets[i] = 0;
+        client_sockets_ptr[i] = 0;
     }
-
     // Listening socket
     if( (listening_socket = socket(AF_INET , SOCK_STREAM , 0)) == 0)
     {
@@ -286,7 +232,7 @@ int * fullConnectListenAccept(int port, int nodeNum){
         //add child sockets to set
         for (int i = 0; i < nodeNum; i++) {
             //socket descriptor
-            sd = client_sockets[i];
+            sd = client_sockets_ptr[i];
 
             //if valid socket descriptor then add to read list
             if (sd > 0)
@@ -322,8 +268,8 @@ int * fullConnectListenAccept(int port, int nodeNum){
             //add new socket to array of sockets
             for (int i = 0; i < nodeNum; i++) {
                 //if position is empty
-                if (client_sockets[i] == 0) {
-                    client_sockets[i] = new_socket;
+                if (client_sockets_ptr[i] == 0) {
+                    client_sockets_ptr[i] = new_socket;
                     printf("Adding to list of sockets as %d\n", i);
 
                     break;
@@ -331,7 +277,7 @@ int * fullConnectListenAccept(int port, int nodeNum){
             }
         }
     }
-    return client_sockets;
+    return client_sockets_ptr;
 }
 
 int listenAccept(int port, int * sockIds, int flag) {
@@ -365,11 +311,6 @@ int listenAccept(int port, int * sockIds, int flag) {
         }
     } else {
         sockfd = sockIds[1];                // listening sock already set up (avoid the dual bind)
-    }
-    // Bind socket
-    if (bind(sockfd, (struct sockaddr *) &address, sizeof(address)) < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
     }
 
 // Wait for connect function call

@@ -5,22 +5,18 @@
 
 #include "../mw_public.h"
 
+// Test for multiple send and receives simultaneously to multiple nodes.
 void main(int argc, char const *argv[]) {
-    printf("Main Loop\n");
-    int port = atoi(argv[1]);
-    char * msg = "Test message";
+    char * msgNode0 = "TEST MESSAGE\n";
+    char buffer[BUFFER];
     int * sockIds;
-    sockIds = fullyConnectedSetup("./test/ringTestConfig.txt", port);
-//    if(port == 59000){
-//        printf("Running node 0\n");
-//        Send(1, msg, strlen(msg), sockIds);
-//        for(int i = 1; i < 4; i++) {
-//            close(sockIds[i])
-//        }
-//    }
-//    else {
-//
-//    }
+    sockIds = fullyConnectedSetup("./config.txt","./fulltest");
+    int numOfMachines = getNumOfMachines("./config.txt");
+    struct config* machines = readConfig("./config.txt");
+    int currNode = getCurrNode(numOfMachines, machines);
+    printf("Current Node is: %i\n", currNode);
+    printf("Num of Machines is: %i\n", numOfMachines);
+
 }
 
 

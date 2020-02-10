@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <sys/socket.h>
 #include <stdlib.h>
@@ -11,105 +12,115 @@
 #include "mw_internal.h"
 #include "mw_public.h"
 
-// User Function
-int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config path here?
-    struct Config * machines;                   // Struct for storing the config file
-    int sockIds[2];
-    char * appPath = "./test/ringTest";
-    // Loop variables
-    int i;
-
-    if(nodeId == 0) {                                               // Node 0 must reach out to middleware
-        machines = readConfig(configPath);
-        if(reachMiddleware(machines, configPath, appPath) != 1) {            // Reach middleware step goes to every node to distribute config file
-            printf("Attempt to reach out to middleware failed");
-        }
-        comIds[nodeId+1] = Connect(machines[1].ip, machines[1].port);
-        listenAccept(machines[nodeId].port, sockIds, 0);
-        comIds[3] = sockIds[0];                                                /// Needs logic (number of nodes would do)
-        printf("Made it full circle\n");
-    } else {
-        // Read the config
-        machines = readConfig(configPath);                         /// Will need to change to tmp directory
-        // Wait for previous node to reach out
-        listenAccept(machines[nodeId].port, sockIds, 0);
-        comIds[nodeId-1] = sockIds[0];
-        if(nodeId+1 < 4){                                         /// Need to remove hard coding
-            comIds[nodeId+1] = Connect(machines[nodeId+1].ip, machines[nodeId+1].port);
-        } else {
-            //printf("Node 3 connection\n");
-            //printf("%s, %d\n", machines[0].ip, machines[0].port);
-            comIds[0] = Connect(machines[0].ip, machines[0].port);
-        }
+struct Config * readConfig(char * configPath) {
+    FILE *fp;
+    char str[MAXCHAR];
+    fp = fopen(configPath, "r");
+    if (fp == NULL){
+        printf("Could not open file %s\n",configPath);
+        exit(EXIT_FAILURE);
     }
-    //int * ptr = comIds;
-    return 1;
+
+    static struct Config* machines;
+    machines = malloc((sizeof(int) + sizeof(char) * 30) * 15);
+    int line_count = 0;
+    char *pt;
+    while (fgets(str, MAXCHAR, fp) != NULL) {
+        if (line_count > 0) {
+            pt = strtok(str, ",");
+            int is_it_ip = 1;
+            while(pt != NULL){
+                if(is_it_ip == 1){
+                    strcpy(machines[line_count - 1].ip, pt);
+                    is_it_ip = 0;
+                }
+                else if(is_it_ip == 0){
+                    machines[line_count - 1].port = atoi(pt);
+                }
+                pt = strtok(NULL, ",");
+            }
+            machines[line_count - 1].nodeID = line_count - 1;
+        }
+        line_count++;
+    }
+    fclose(fp);
+    return machines;
 }
 
-// User Function
-int * starSetup(int nodeId, char * configPath) {
-
-    struct Config * nodes;  // Struct for storing the config file information
-    char * appPath = "./test/ringTest";
-    int sockIds[2];
-
-    if(configPath != "") {
-        nodes = readConfig(configPath);
-        // Determine nodeId
+int getNumOfMachines(char * configPath){
+    FILE *fp;
+    char str[MAXCHAR];
+    fp = fopen(configPath, "r");
+    if (fp == NULL){
+        printf("Could not open file %s",configPath);
+        exit(EXIT_FAILURE);
     }
-
-    if (nodeId == 0) {
-        int * client_nodes;
-
-        if(reachMiddleware(nodes, configPath, appPath) != 1) {  // Distribute config file to every node
-            printf("Attempt to reach out to middleware failed");
-        }
-
-        // somehow wait until all clients are ready and waiting?
-
-        client_nodes = starConnect(nodes);
-        return client_nodes;
+    int net_top;
+    int line_count = 0;
+    while (fgets(str, MAXCHAR, fp) != NULL) {
+        line_count++;
     }
-    else {
-        listenAccept(PORT, sockIds, 0);
-        int * central_node = sockIds[0];
-        return central_node;
-    }
+    fclose(fp);
+    return --line_count;
 }
 
-// User Function
-int * fullyConnectedSetup(char * configPath, int port) {
+int getCurrNode(int numOfMachines, struct Config * machines){
+    int nodeNum = -1;
+    for(int i = 0; i < numOfMachines; i++){
+        if(checkIPMatch(machines[i].ip) == 1){
+            nodeNum = i;
+        }
+    }
+    return nodeNum;
+}
+
+int * starSetup(char * configPath, char * appPath){
+    int port = 59000;
     struct Config * machines = readConfig(configPath);                   // Struct for storing the config file
-    char * appPath = "./test/fulltest";
     int numOfMachines = getNumOfMachines(configPath);
-    int nodeId;
-    int i;
-    // Identify self in config
-    for(i = 0; i < numOfMachines; i++){
-        if(checkIPMatch(machines[i].ip) && machines[i].port == port){
-            nodeId = i;
-            break;
-        }
-        if( i + 1 == numOfMachines){
-            perror("Error finding machine in config file");
-            exit(EXIT_FAILURE);
-        }
+    int nodeNum = getCurrNode(numOfMachines, machines);
+    if(nodeNum == -1){
+        printf("Couldnt find Node in config file\n");
     }
-    // Node 0 must reach out to other machines
-    if(nodeId == 0){
-        if(reachMiddleware(machines, configPath, appPath) != 1) {  // Distribute config file to every node
+        // Node 0 must reach out to other machines
+    else if(nodeNum == 0){
+        printf("This is node 0 and reaching out\n");
+        if(reachMiddleware(machines, appPath, numOfMachines) != 1) {  // Distribute config file to every node
             printf("Attempt to reach out to middleware failed");
         }
-        return fullConnect(machines, nodeId, numOfMachines);
+        return fullConnect(machines, nodeNum, numOfMachines);
     }
     else{
-        int * inbound_sockets = fullConnectListenAccept(machines[nodeId].port, nodeId);
-        int * outbound_sockets = fullConnect(machines, nodeId, numOfMachines);
+        return fullConnectListenAccept(machines[nodeNum].port, nodeNum, 0);
+    }
+
+}
+
+int * fullyConnectedSetup(char * configPath, char * appPath) {
+    int port = 59000;
+    struct Config * machines = readConfig(configPath);                   // Struct for storing the config file
+    int numOfMachines = getNumOfMachines(configPath);
+    int nodeNum = getCurrNode(numOfMachines, machines);
+    if(nodeNum == -1){
+        printf("Couldnt find Node in config file\n");
+    }
+    // Node 0 must reach out to other machines
+    else if(nodeNum == 0){
+        printf("This is node 0 and reaching out\n");
+        if(reachMiddleware(machines, appPath, numOfMachines) != 1) {  // Distribute config file to every node
+            printf("Attempt to reach out to middleware failed");
+        }
+        return fullConnect(machines, nodeNum, numOfMachines);
+    }
+    else{
+        int * inbound_sockets = fullConnectListenAccept(machines[nodeNum].port, nodeNum, 0);
+        int * outbound_sockets = fullConnect(machines, nodeNum, numOfMachines);
         // As many connections as there are machines minus self
-        int nodes[numOfMachines - 1];
+        int * nodes = (int*)malloc(numOfMachines * sizeof(int));
         // Combine inbound and outbound sockets into a single array
-        memcpy(nodes, inbound_sockets, nodeId * sizeof(int));
-        memcpy(nodes + nodeId, outbound_sockets, (numOfMachines - 1 - nodeId) * sizeof(int));
+        //memcpy(where in nodes, what are you copying, how long is what is being copied)
+        memcpy(nodes, inbound_sockets, nodeNum * sizeof(int));
+        memcpy(nodes + nodeNum, outbound_sockets, (numOfMachines - 1 - nodeNum) * sizeof(int));
         return nodes;
     }
 }
