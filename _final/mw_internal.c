@@ -13,6 +13,36 @@
 
 #include "mw_internal.h"
 
+int checkIPMatch(char *ipAddress){
+    // Get IP Address of current machine
+    char hostbuffer[256];
+    char * IPbuffer;
+    struct hostent *host_entry;
+    int hostname;
+    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
+    checkHostName(hostname);
+    host_entry = gethostbyname(hostbuffer);
+    checkHostEntry(host_entry);
+    IPbuffer = inet_ntoa(*((struct in_addr*)
+            host_entry->h_addr_list[0]));
+    if(strcmp(ipAddress,IPbuffer) == 0){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+int findNodeId(int numNodes, struct Config * machines){
+    int nodeNum = -1;
+    for(int i = 0; i < numNodes; i++){
+        if(checkIPMatch(machines[i].ip) == 1){
+            nodeNum = i;
+        }
+    }
+    return nodeNum;
+}
+
 struct Config * readConfig(char * configPath) {
     FILE *fp;
     char str[MAXCHAR];
@@ -63,26 +93,6 @@ int getNumOfMachines(char * configPath){
     }
     fclose(fp);
     return --line_count;
-}
-
-int checkIPMatch(char *ipAddress){
-    // Get IP Address of current machine
-    char hostbuffer[256];
-    char *IPbuffer;
-    struct hostent *host_entry;
-    int hostname;
-    hostname = gethostname(hostbuffer, sizeof(hostbuffer));
-    checkHostName(hostname);
-    host_entry = gethostbyname(hostbuffer);
-    checkHostEntry(host_entry);
-    IPbuffer = inet_ntoa(*((struct in_addr*)
-            host_entry->h_addr_list[0]));
-    if(strcmp(ipAddress,IPbuffer) == 0){
-        return 1;
-    }
-    else{
-        return 0;
-    }
 }
 
 // Returns hostname for the local computer
@@ -184,7 +194,7 @@ void recConfig(int sockId) {
     //printf("recConfig: needs to be polished\n");
 }
 
-int reachMiddleware(struct Config * machines, char * configPath, char * progPath) {
+int reachMiddleware(struct Config * machines, char * configPath, const char * progPath) {
     // Iterate over every node
     // connect to each node read from config
     // send app to launch & node ID
@@ -194,12 +204,12 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
     int i = 0;
     int port;
     int bg_sock;        // background socket
-    int numMachines;
+    int numMachines = getNumOfMachines(configPath);
     char * ip;
     char buff[128];
 
     if(localTest) {
-        for(i=0; i<3; i++) {        // Iterate over two background apps
+        for(i=0; i<numMachines-1; i++) {        // Iterate over background apps
             ip = machines[i].ip;    // Local machine
             port = 58901+i;
             bg_sock = Connect(ip, port);
@@ -209,15 +219,14 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
             strcat(buff, progPath);                              // Add msg onto end of buffer
-            send(bg_sock, buff, strlen(progPath)+HEADER_LEN, 0);
+            send(bg_sock, buff, strlen(progPath)+HEADER_LEN+1, 0);
             /// Send Config
             //sendConfig(bg_sock, configPath);                   // May change args for this func
             /// Close the socket
             close(bg_sock);
         }
     } else {
-        numMachines = getNumOfMachines(configPath);
-        for (i = 1; i < numMachines; i++) {
+        for (i = 1; i < numMachines; i++) {                     /// May be same bug as above
             port = PORT_BG;
             ip = machines[i].ip;
             bg_sock = Connect(ip, port);
@@ -226,7 +235,7 @@ int reachMiddleware(struct Config * machines, char * configPath, char * progPath
             strcat(buff, progPath);                              // Add msg onto end of buffer
             send(bg_sock, progPath, 128, 0);
             /// Send Config
-            //sendConfig(bg_sock, configPath);               // May change args for this func
+            //sendConfig(bg_sock, configPath);                  // May change args for this func
             /// Close the socket
             close(bg_sock);
         }

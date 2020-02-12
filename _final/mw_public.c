@@ -11,12 +11,39 @@
 #include "mw_internal.h"
 #include "mw_public.h"
 
+int getNumOfNodes(char * configPath) {
+    FILE *fp;
+    char str[MAXCHAR];
+    fp = fopen(configPath, "r");
+    if (fp == NULL){
+        printf("Could not open file %s",configPath);
+        exit(EXIT_FAILURE);
+    }
+    int net_top;
+    int line_count = 0;
+    while (fgets(str, MAXCHAR, fp) != NULL) {
+        line_count++;
+    }
+    fclose(fp);
+    return --line_count;
+}
+
+int getCurrNode(int argc, char const * argv[]) {
+    int nodeNum = -1;
+    if(argc == 1){
+        nodeNum = 0;
+    } else {
+        nodeNum = atoi(argv[1]);
+    }
+    return nodeNum;
+}
+
 // User Function
-int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config path here?
+int ringSetup(int comIds[], int nodeId, char * configPath, char const * argv[]) {  // Include config path here?
     struct Config * machines;                   // Struct for storing the config file
     int sockIds[2];
     int numMachines = 0;
-    char * appPath = "./test/ringTest";
+    //char const * appPath = argv[0];
     // Loop variables
     int i;
 
@@ -24,7 +51,7 @@ int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config 
         machines = readConfig(configPath);
         numMachines = getNumOfMachines(configPath);
         //printf("%d\n", numMachines);
-        if(reachMiddleware(machines, configPath, appPath) != 1) {            // Reach middleware step goes to every node to distribute config file
+        if(reachMiddleware(machines, configPath, argv[0]) != 1) {            // Reach middleware step goes to every node to distribute config file
             printf("Attempt to reach out to middleware failed\n");
             return -1;
         }
@@ -32,7 +59,7 @@ int ringSetup(int comIds[], int nodeId, char * configPath) {  // Include config 
         comIds[nodeId+1] = Connect(machines[1].ip, machines[1].port);
         listenAccept(machines[nodeId].port, sockIds, 0);
         comIds[numMachines-1] = sockIds[0];
-        printf("Made it full circle\n");
+        //printf("Made it full circle\n");
     } else {
         // Read the config
         machines = readConfig(configPath);                         /// Will need to change to tmp directory
@@ -123,9 +150,10 @@ int * fullyConnectedSetup(char * configPath, int port) {
 }
 
 // User Function
-void Send(int nodeDest, char * data, int dataLen, int * sockIds) {
+int Send(int nodeDest, char * data, int dataLen, int * sockIds) {
     /// Need loops to ensure all of the data is sent
     send(sockIds[nodeDest], data, BUFFER, 0);
+    return 1;
 }
 
 // User Function

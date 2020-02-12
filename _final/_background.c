@@ -10,10 +10,6 @@
 #include "mw_internal.h"
 #include "mw_public.h"
 
-/** KNOWN ISSUES
- *      - Background wont loop (bind failed: Address already in use)
- */
-
 int main(int argc, char const *argv[]) {
     int node;
 
@@ -26,7 +22,7 @@ int main(int argc, char const *argv[]) {
     char str_num_nodes[32];
     char inst[1024], tmpBuff[1024];
     char ip[16];
-    //struct Config conf_ip[64];
+    struct Config * machines;
     char _node[8];
     char *token;
 
@@ -38,9 +34,9 @@ int main(int argc, char const *argv[]) {
     }
     // Loop so app runs in background permanently
     while(1) {
-        printf("Background launched at node %s\n", argv[1]);
         /// Wait for connection
         if(j == 0) {
+            printf("Background launched at node %s\n", argv[1]);
             listenAccept(PORT_BG + node, sockIds, 1);
         } else {
             listenAccept(PORT_BG + node, sockIds, 2);
@@ -50,28 +46,30 @@ int main(int argc, char const *argv[]) {
         inst[3] = '\0';                             // Manually add null terminator to header length
         headerVal = atoi(inst);                     // Convert header to integer
         read(sockIds[0], inst, headerVal);          // Read app name info
-        printf("%s\n", inst);
+        //printf("%s\n", inst);
 
         /// Receive config file
+        /*
         if(node < 2) {
             //recConfig(nodeZero);
             //printf("Escaped recConfig\n");
         }
-        /// Save config file (/tmp/config.txt)
-
+        */
         /// Close connection
         close(sockIds[0]);
 
         // Fork exec new prog (Pass the node ID?)
-        if(node == 0) {                             ///
-                                                    /// For operation on multiple PCs need to determine node ID
-        }                                           ///
+        if(node == 0) {
+            machines = readConfig("/tmp/config");
+            num_nodes = getNumOfMachines("/tmp/config");
+            node = findNodeId(num_nodes, machines);
+        }
         sprintf(_node, "%d", node);
         char *args[] = {inst, _node, NULL};
         launchProg(args);
-        printf("App finished\n");
+        //printf("App finished\n");
 
-        j = 1;
+        j = 1;      // This is so background knows to skip the bind steps
         //sleep(20);
     }
 }

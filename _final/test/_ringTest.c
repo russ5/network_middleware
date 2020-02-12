@@ -11,6 +11,7 @@ void main(int argc, char const *argv[]) {
     char * msg = "Testing the elevated connection scheme\n";
     char buffer[BUFFER];
     int comIds[MAX_MACHINES];
+    int numberOfNodes =
 
     if(node == 0){
         printf("Start Ring Setup\n");

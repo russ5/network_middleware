@@ -1,9 +1,17 @@
 #ifndef MIDDLEWARE_H
 #define MIDDLEWARE_H
 
+#define MAXCHAR 64
+#define MAX_IP_LEN 30
+#define PORT 59000
+#define PORT_BG 58900
 #define BUFFER 512
+#define CONFIG_BUFF 2048
+#define MAX_IP 24
+#define HEADER_LEN 3
 #define MAX_MACHINES 64
 
+#endif
 /*
  * Notes:
  *  - Axing connections between app and middleware in setup?
@@ -22,7 +30,29 @@
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-int ringSetup(int comIds[], int nodeId, char * configPath); // Include config path here?
+int getNumOfNodes(char * configPath);
+
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........:
+ *  Description ...:
+ *  Parameters ....:
+ *  Return values .:
+ *  Modified ......:
+ *  Remarks .......:
+ *  Related .......:
+**  ================================================================================================================= */
+int getCurrNode(int argc, char const * argv[]);
+
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........:
+ *  Description ...:
+ *  Parameters ....:
+ *  Return values .:
+ *  Modified ......:
+ *  Remarks .......:
+ *  Related .......:
+**  ================================================================================================================= */
+int ringSetup(int comIds[], int nodeId, char * configPath, char const * argv[]); // Include config path here?
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........:
@@ -58,7 +88,7 @@ int * fullyConnectedSetup(char * configPath, int port);
  *  Remarks .......:
  *  Related .......:
 **  ================================================================================================================= */
-void Send(int nodeDest, char * data, int dataLen, int * sockIds);
+int Send(int nodeDest, char * data, int dataLen, int * sockIds);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: Receive
@@ -73,4 +103,4 @@ void Send(int nodeDest, char * data, int dataLen, int * sockIds);
 **  ================================================================================================================= */
 int Receive(char * buffer, int nodeId, int * sockIds);
 
-#endif
+

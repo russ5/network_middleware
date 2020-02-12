@@ -9,6 +9,9 @@
 #define CONFIG_BUFF 2048
 #define MAX_IP 24
 #define HEADER_LEN 3
+#define MAX_MACHINES 64
+
+#endif
 
 /*
  * Notes:
@@ -26,6 +29,29 @@ struct Config {
 };
 
 /***** Functions *****/
+
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........: checkIPMatch
+ *  Description ...: Checks if inputted IP matches the current machine's IP
+ *  Parameters ....: char *ipAddress (IP Address string)
+ *  Return values .: int 1 == True, 0 == False
+ *  Modified ......:
+ *  Remarks .......: See Tae for info about functionality
+ *                   Has been modified slightly for port into mw_internal so may not work
+ *  Related .......: checkHostName, checkHostEntry, checkIPbuffer are all helper functions for this function
+**  ================================================================================================================= */
+int checkIPMatch(char *ipAddress);
+
+/** #FUNCTION# =========================================================================================================
+ *  Name ..........:
+ *  Description ...:
+ *  Parameters ....:
+ *  Return values .:
+ *  Modified ......:
+ *  Remarks .......:
+ *  Related .......:
+**  ================================================================================================================= */
+int findNodeId(int numNodes, struct Config * machines);
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: readConfig
@@ -50,18 +76,6 @@ struct Config * readConfig(char * configPath);                              /// 
  *  Related .......:
 **  ================================================================================================================= */
 int getNumOfMachines(char * configPath);                              /// Finished
-
-/** #FUNCTION# =========================================================================================================
- *  Name ..........: checkIPMatch
- *  Description ...: Checks if inputted IP matches the current machine's IP
- *  Parameters ....: char *ipAddress (IP Address string)
- *  Return values .: int 1 == True, 0 == False
- *  Modified ......:
- *  Remarks .......: See Tae for info about functionality
- *                   Has been modified slightly for port into mw_internal so may not work
- *  Related .......: checkHostName, checkHostEntry, checkIPbuffer are all helper functions for this function
-**  ================================================================================================================= */
-int checkIPMatch(char *ipAddress);                                    /// Finished
 
 void checkHostName(int hostname);                                     /// Finished
 
@@ -111,7 +125,7 @@ void recConfig(int sockId);                                                 /// 
  *  Remarks .......: progPath variable should start with "./"
  *  Related .......:
 **  ================================================================================================================= */
-int reachMiddleware(struct Config * machines, char * configPath, char * progPath);           ///
+int reachMiddleware(struct Config * machines, char * configPath, const char * progPath);           ///
 
 /** #FUNCTION# =========================================================================================================
  *  Name ..........: Connect
@@ -154,4 +168,4 @@ int listenAccept(int port, int * sockIds, int flag);                            
 int * fullConnect(struct Config * machines, int nodeId, int numOfMachines);
 int * fullConnectListenAccept(int port, int nodeNum);
 
-#endif
+
