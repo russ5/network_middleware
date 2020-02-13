@@ -140,8 +140,9 @@ void launchProg(char * args[]) {
 
 void sendConfig(int bg_sock, char * configPath) {
     char buff[CONFIG_BUFF];
-    FILE *fp_config;
 
+    FILE *fp_config;
+    /*
     fp_config = fopen(configPath, "r");
     if (fp_config == NULL) {
         printf("File open error\n");
@@ -199,9 +200,9 @@ int reachMiddleware(struct Config * machines, char * configPath, const char * pr
     // connect to each node read from config
     // send app to launch & node ID
     // close connection
-    int localTest = 1;
+    int localTest = 0;
 
-    int i = 0;
+    int i = 0, j;
     int port;
     int bg_sock;        // background socket
     int numMachines = getNumOfMachines(configPath);
@@ -222,20 +223,28 @@ int reachMiddleware(struct Config * machines, char * configPath, const char * pr
             send(bg_sock, buff, strlen(progPath)+HEADER_LEN+1, 0);
             /// Send Config
             //sendConfig(bg_sock, configPath);                   // May change args for this func
+            sprintf(buff, "%03d", strlen(configPath));             // Header of msg length
+            strcat(buff, configPath);                              // Add msg onto end of buffer
+            //printf("%s\n", buff);
+            j = send(bg_sock, buff, strlen(configPath)+HEADER_LEN+1, 0);
+            //printf("%d\n", j);
             /// Close the socket
             close(bg_sock);
         }
     } else {
         for (i = 1; i < numMachines; i++) {                     /// May be same bug as above
+            printf("%s\n", machines[i].ip);                     /// Remove later
             port = PORT_BG;
             ip = machines[i].ip;
             bg_sock = Connect(ip, port);
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
             strcat(buff, progPath);                              // Add msg onto end of buffer
-            send(bg_sock, progPath, 128, 0);
+            send(bg_sock, buff, strlen(progPath)+HEADER_LEN+1, 0);
             /// Send Config
-            //sendConfig(bg_sock, configPath);                  // May change args for this func
+            sprintf(buff, "%03d", strlen(configPath));             // Header of msg length
+            strcat(buff, configPath);                              // Add msg onto end of buffer
+            send(bg_sock, buff, strlen(configPath)+HEADER_LEN+1, 0);
             /// Close the socket
             close(bg_sock);
         }
@@ -435,4 +444,16 @@ int listenAccept(int port, int * sockIds, int flag) {
         close(sockfd);
     }
     return 1;
+}
+
+void * cpyFile(char * filePath) {
+    char buffer[BUFFER];
+    FILE * src_fd = fopen(filePath, "r");
+    FILE * dst_fd = fopen("/tmp/config.txt", "w");
+
+    fread(buffer, sizeof(char), BUFFER, src_fd);
+    fclose(src_fd);
+    //printf("%s\n", buffer);
+    fprintf(dst_fd, "%s", buffer);
+    fclose(dst_fd);
 }

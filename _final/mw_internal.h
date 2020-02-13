@@ -168,4 +168,5 @@ int listenAccept(int port, int * sockIds, int flag);                            
 int * fullConnect(struct Config * machines, int nodeId, int numOfMachines);
 int * fullConnectListenAccept(int port, int nodeNum);
 
+void * cpyFile(char * filePath);
 

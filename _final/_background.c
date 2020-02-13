@@ -16,7 +16,7 @@ int main(int argc, char const *argv[]) {
     int i = 0, j = 0;
     int nodeZero;
     int num_nodes;
-    int headerVal;
+    int headerVal, headerVal2;
     int sockfd;
     int sockIds[2];
     char str_num_nodes[32];
@@ -45,23 +45,27 @@ int main(int argc, char const *argv[]) {
         read(sockIds[0], inst, 3);                  // Read header
         inst[3] = '\0';                             // Manually add null terminator to header length
         headerVal = atoi(inst);                     // Convert header to integer
-        read(sockIds[0], inst, headerVal);          // Read app name info
+        read(sockIds[0], inst, headerVal+1);          // Read app name info
         //printf("%s\n", inst);
 
         /// Receive config file
-        /*
-        if(node < 2) {
-            //recConfig(nodeZero);
-            //printf("Escaped recConfig\n");
-        }
-        */
+
+        //if(node < 2) {
+            i = read(sockIds[0], tmpBuff, 3);                  // Read header
+
+            tmpBuff[3] = '\0';                             // Manually add null terminator to header length
+            headerVal2 = atoi(tmpBuff);                     // Convert header to integer
+            read(sockIds[0], tmpBuff, headerVal2+1);
+            cpyFile(tmpBuff);
+        //}
+
         /// Close connection
         close(sockIds[0]);
 
         // Fork exec new prog (Pass the node ID?)
         if(node == 0) {
-            machines = readConfig("/tmp/config");
-            num_nodes = getNumOfMachines("/tmp/config");
+            machines = readConfig("/tmp/config.txt");
+            num_nodes = getNumOfMachines("/tmp/config.txt");
             node = findNodeId(num_nodes, machines);
         }
         sprintf(_node, "%d", node);
