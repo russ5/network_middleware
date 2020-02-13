@@ -47,25 +47,39 @@ int ringSetup(int comIds[], int nodeId, char * configPath, char const * argv[]) 
     // Loop variables
     int i;
 
+    printf("Node %d active\n", nodeId);
+
     if(nodeId == 0) {                                               // Node 0 must reach out to middleware
         machines = readConfig(configPath);
         numMachines = getNumOfMachines(configPath);
-        //printf("%d\n", numMachines);
+        printf("%d\n", numMachines);
         if(reachMiddleware(machines, configPath, argv[0]) != 1) {            // Reach middleware step goes to every node to distribute config file
             printf("Attempt to reach out to middleware failed\n");
             return -1;
         }
         //printf("%d\n", machines[nodeId].port);
+        printf("Connecting at %d, %s\n", machines[1].port, machines[1].ip);
         comIds[nodeId+1] = Connect(machines[1].ip, machines[1].port);
-        listenAccept(machines[nodeId].port, sockIds, 0);
-        comIds[numMachines-1] = sockIds[0];
-        //printf("Made it full circle\n");
+        if(comIds[nodeId+1] == -1) {
+            printf("Connection Failure!\n");
+            return -1;
+        }
+        //printf("Connected");
+        if(numMachines > 2) {
+            listenAccept(machines[nodeId].port, sockIds, 0);
+            comIds[numMachines - 1] = sockIds[0];
+            printf("Made it full circle\n");                        /// Remove
+        }
     } else {
         // Read the config
-        machines = readConfig(configPath);                         /// Will need to change to tmp directory
-        numMachines = getNumOfMachines(configPath);                /// Will need to change to tmp directory
+        machines = readConfig("/tmp/config.txt");                         /// Will need to change to tmp directory
+        //printf("read config\n");
+        numMachines = getNumOfMachines("/tmp/config.txt");                /// Will need to change to tmp directory
+        //printf("%d\n", numMachines);
+        //printf("found num machines\n");
         // Wait for previous node to reach out
         //printf("%d\n", machines[nodeId].port);
+        //printf("Listening %d\n", machines[nodeId].port);
         listenAccept(machines[nodeId].port, sockIds, 0);
         comIds[nodeId-1] = sockIds[0];
         if(nodeId+1 < numMachines){                               
@@ -73,7 +87,9 @@ int ringSetup(int comIds[], int nodeId, char * configPath, char const * argv[]) 
         } else {
             //printf("Node 3 connection\n");
             //printf("%s, %d\n", machines[0].ip, machines[0].port);
-            comIds[0] = Connect(machines[0].ip, machines[0].port);
+            if(numMachines > 2)
+                comIds[0] = Connect(machines[0].ip, machines[0].port);
+
         }
     }
     //int * ptr = comIds;

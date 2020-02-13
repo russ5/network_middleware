@@ -233,14 +233,16 @@ int reachMiddleware(struct Config * machines, char * configPath, const char * pr
         }
     } else {
         for (i = 1; i < numMachines; i++) {                     /// May be same bug as above
-            printf("%s\n", machines[i].ip);                     /// Remove later
+            //printf("%s\n", machines[i].ip);                     /// Remove later
             port = PORT_BG;
             ip = machines[i].ip;
             bg_sock = Connect(ip, port);
             /// send app name
             sprintf(buff, "%03d", strlen(progPath));             // Header of msg length
             strcat(buff, progPath);                              // Add msg onto end of buffer
-            send(bg_sock, buff, strlen(progPath)+HEADER_LEN+1, 0);
+            //printf("%s\n", buff);
+            j = send(bg_sock, buff, strlen(progPath)+HEADER_LEN+1, 0);
+            //printf("Sent %d\n", j);
             /// Send Config
             sprintf(buff, "%03d", strlen(configPath));             // Header of msg length
             strcat(buff, configPath);                              // Add msg onto end of buffer
